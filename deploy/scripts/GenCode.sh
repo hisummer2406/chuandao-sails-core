@@ -1,0 +1,6 @@
+# 生成API代码
+goctl api go -api user.api -dir ../ --style=gozero --home $GOPATH/src/chuandao-sails-core/deploy/goctl/1.8.5
+
+# 生成RPC代码
+# -m 分组
+goctl rpc protoc strategy.proto --go_out=../ --go-grpc_out=../ --zrpc_out=../ -m

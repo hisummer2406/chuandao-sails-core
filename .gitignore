@@ -1,0 +1,10 @@
+# 项目文件
+.idea/
+.swp
+.DS_Store
+
+# 配置文件
+*.yaml
+
+# 其他文件
+doc/LEARNGO.md

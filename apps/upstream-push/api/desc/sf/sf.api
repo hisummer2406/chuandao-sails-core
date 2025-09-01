@@ -1,0 +1,61 @@
+syntax = "v1"
+
+info (
+    title:   "顺丰溢出单接口"
+    desc:    "顺丰定义数据结构，顺丰主动推送"
+    version: "1.0"
+)
+
+type (
+    // 订单创建请求
+    SfOverflowCreateRequest {
+        OrderNo           string `json:"orderNo"`           // 顺丰同城订单号
+        SourceOrderNo     string `json:"sourceOrderNo"`     // 来源订单号（如美团订单号）
+        Source            string `json:"source"`            // 订单来源标识
+        OrderSn           string `json:"orderSn"`           // 订单序号
+        AdCode            string `json:"adCode"`            // 城市编码 例:110000，高德城市编码规范
+        OrderTime         string `json:"orderTime"`         // 订单时间(如："2023-04-27 11:03:25")
+        FromId            string `json:"fromId"`            // 发方唯一ID（店铺ID/用户ID）
+        FromName          string `json:"fromName"`          // 发方名称
+        FromPhone         string `json:"fromPhone"`         // 发方电话
+        FromAddress       string `json:"fromAddress"`       // 发方地址详细到门牌号
+        FromAddressDetail string `json:"fromAddressDetail"` // 发方详址详细到楼栋门牌
+        FromLatitude      string `json:"fromLatitude"`      // 发方纬度
+        FromLongitude     string `json:"fromLongitude"`     // 发方经度
+        ToName            string `json:"toName"`            // 收方名称
+        ToPhone           string `json:"toPhone"`           // 收方电话
+        ToAddress         string `json:"toAddress"`         // 收方地址
+        ToAddressDetail   string `json:"toAddressDetail"`   // 收方详址
+        ToLatitude        string `json:"toLatitude"`        // 收方纬度
+        ToLongitude       string `json:"toLongitude"`       // 收方经度
+        OrderRemark       string `json:"orderRemark"`       // 备注
+        IsSubscribe       string `json:"isSubscribe"`       // 是否预约单 0否1是
+        SubscribeTime     string `json:"subscribeTime"`     // 预约送达时间 （毫秒级别）
+        GoodType          string `json:"goodType"`          // 物品类型
+        TotalAmount       string `json:"totalAmount"`       // 货品总值
+        GoodsCount        string `json:"goodsCount"`        // 货品数量
+        Weight            string `json:"weight"`           // 总重量 必须大于0,单位g
+        PostPrice         string `json:"postPrice"`         // 发单价格 (分)（包含小费)
+        IsInsured         string `json:"isInsured"`         // 是否保价 0否1是
+        IsPersonDirect    string `json:"isPersonDirect"`    // 是否专人直送 0否1是
+        OrderTip          string `json:"orderTip"`          // 订单小费 单位分
+        WeatherLevel      string `json:"weatherLevel"`      // 天气等级
+        PriceDistance     string `json:"priceDistance"`     // 计价距离 单位米
+        IsCityShop        string `json:"isCityShop"`        // 是否是城市型店铺1是，0否
+        IsReverseOrder    string `json:"isReverseOrder"`    // 是否是帮我取订单 1是，0否
+        Goods             string `json:"goods"`             // name 名称 qty 数量 amount 价格单位分
+    }
+
+    // Data 结构体
+    SfOverflowCreateData {
+        DeliveryOrderId string `json:"deliveryOrderId"` // 配送订单ID
+        OrderId        string `json:"orderId"`         // 订单ID
+    }
+
+    // 订单创建响应
+    SfOverflowCreateResponse {
+        Data SfOverflowCreateData `json:"data"`
+        Errno  int    `json:"errno"`  // 错误码
+        Errmsg string `json:"errmsg"` // 错误信息
+    }
+)

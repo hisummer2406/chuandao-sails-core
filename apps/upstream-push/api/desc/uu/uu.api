@@ -1,0 +1,59 @@
+syntax = "v1"
+
+info (
+	title:   "UU 开放平台接口"
+	desc:    "UU定义数据结构，UU主动推送"
+	version: "1.0"
+)
+
+type (
+	// 接收订单请求
+	UUCreateOrderRequest {
+		DeliveryId      string `json:"deliveryId"` // 上游订单号
+		SendType        int    `json:"sendType"` // 订单小类 0帮我送 1帮我买 2帮我取
+		Sender          string `json:"sender"` // 发货人姓名
+		SenderPhone     string `json:"senderPhone"` // 发货人联系电话
+		FromAddress     string `json:"fromAddress"` // 发货地址
+		FromUserNote    string `json:"fromUserNote,optional"` // 发货详细地址具体门牌号或门店名称
+		FromLat         string `json:"fromLat"` // 发货地址坐标纬度(高德地图坐标系)
+		FromLng         string `json:"fromLng"` // 发货地址坐标经度(高德地图坐标系)
+		Receiver        string `json:"receiver"` // 收件人姓名
+		ReceiverPhone   string `json:"receiverPhone"` // 收件人联系电话
+		ToAddress       string `json:"toAddress"` // 收货人地址
+		ToUserNote      string `json:"toUserNote"` // 收货人详细地址具体门牌号
+		ToLat           string `json:"toLat"` // 收货地址坐标纬度(高德地图坐标系)
+		ToLng           string `json:"toLng"` // 收货地址坐标经度(高德地图坐标系)
+		Note            string `json:"note,optional"` // 备注
+		CityName        string `json:"cityName"` // 订单所在城市名称(如"郑州市")
+		CountyName      string `json:"countyName,optional"` // 订单所在县级地名称
+		PushType        string `json:"pushType"` // 推送方式（0 正常订单，1测试订单）
+		SubscribeType   string `json:"subscribeType"` // 预约类型 0 实时单 1 预约取件时间 2 预约送达时间
+		SubscribeTime   string `json:"subscribeTime,optional"` // 预约时间时间戳（秒）
+		GoodsWeight     string `json:"goodsWeight,optional"` // 物品重量单位：KG
+		OriginalPrice   string `json:"originalPrice"` // 商品价格 原价(元)
+		Price           string `json:"price"` // 商品价格 实际支付金额(元)
+		ProductDetail   string `json:"productDetail,optional"` // 商品列表
+		GoodsPrice      int    `json:"goodsPrice,optional"` // 商品保价：价格（1-10000）
+		GoodsType       string `json:"goodsType"` // 商品类型(废弃)
+		GoodsClass      int    `json:"goodsClass"` // 商品类型 枚举值
+		QuotationPrice  string `json:"quotationPrice"` // 报价，元
+		DeliveryType    string `json:"deliveryType"` // 1：团送 2专送
+		OrderSource     string `json:"orderSource"` // 订单来源 枚举值
+		OrderNum        string `json:"orderNum"` // 订单流水号
+		IsDeliveryImg   int    `json:"isDeliveryImg,optional"` // 是否需要妥投照片 0 否 1是
+		DisableDelivery string `json:"disableDelivery,optional"` // 运力屏蔽，多个配送平台通过英文逗号分隔
+	}
+	// 取消订单请求
+	UUCancelOrderRequest {
+		DeliveryId string `json:"deliveryId"` // UU订单号
+		Reason     string `json:"reason"` // 取消原因
+	}
+	// 接收订单响应
+	UUOrderResponse {
+		Code      string `json:"code"` // 错误码 0成功
+		Msg       string `json:"msg"` // 消息
+		Data      string `json:"data"` // 无
+		RequestId string `json:"requestId"` // 无
+	}
+)
+
