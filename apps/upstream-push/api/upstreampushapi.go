@@ -1,15 +1,20 @@
 package main
 
 import (
-    "chuandao-sails-core/common/sls"
-    "github.com/zeromicro/go-zero/core/logx"
+	"chuandao-sails-core/apps/upstream-push/api/internal/config"
+	"chuandao-sails-core/apps/upstream-push/api/internal/handler"
+	"chuandao-sails-core/apps/upstream-push/api/internal/svc"
+	"chuandao-sails-core/common/sls"
 	"flag"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
+	"os"
 
-	{{.importPackages}}
+	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/{{.serviceName}}.yaml", "the config file")
+var configFile = flag.String("f", "etc/upstreampushapi.yaml", "the config file")
 
 func main() {
 	flag.Parse()

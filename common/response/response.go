@@ -131,3 +131,36 @@ func HandleResponse(w http.ResponseWriter, r *http.Request, data interface{}, er
 		})
 	}
 }
+
+type SFResponse struct {
+	Data   interface{} `json:"data"`
+	Errno  int         `json:"errno"`
+	Errmsg string      `json:"errmsg"`
+}
+
+// SFHandlerResponse 顺丰推单响应
+func SFHandlerResponse(w http.ResponseWriter, r *http.Request, data interface{}, err error) {
+	if err != nil {
+		// 错误情况：errno != 0
+		if businessErr, ok := err.(*BusinessError); ok {
+			httpx.OkJson(w, &SFResponse{
+				Data:   make([]interface{}, 0), // 空数组
+				Errno:  businessErr.Code,
+				Errmsg: businessErr.Msg,
+			})
+		} else {
+			httpx.OkJson(w, &SFResponse{
+				Data:   make([]interface{}, 0),
+				Errno:  SystemErrCode,
+				Errmsg: "系统内部错误",
+			})
+		}
+	} else {
+		// 成功情况：errno = 0
+		httpx.OkJson(w, &SFResponse{
+			Data:   data,
+			Errno:  0,
+			Errmsg: "操作成功",
+		})
+	}
+}
