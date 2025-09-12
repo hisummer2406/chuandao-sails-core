@@ -1,0 +1,108 @@
+syntax = "v1"
+
+info (
+	title:  "上游溢出单路由"
+	desc:   "UU 顺丰 裹小递 快服务"
+	author: "zhangyu"
+)
+
+import (
+	"uu/uu.api"
+	"sf/sf.api"
+	"chd/chd.api"
+)
+
+type SignType {
+	AppId     string `json:"appId"`
+	Timestamp string `json:"timestamp"`
+	Data      string `json:"data"`
+	Sign      string `json:"sign"`
+}
+
+type EmptyType {}
+
+//======================UU======================
+@server (
+	group:      "uu"
+	middleware: HTTPLogMiddleware
+)
+service upstreamPushApi {
+	@doc "接收订单"
+	@handler uuGateway
+	post /platform/callback/uuQuotation/create (UUCreateOrderRequest) returns (EmptyType)
+
+	@doc "取消订单"
+	@handler uuCancel
+	post /platform/callback/uuQuotation/cancel (UUCancelOrderRequest) returns (EmptyType)
+
+	@doc "加小费"
+	@handler uuAddOnlineFee
+	post /platform/callback/uuQuotation/addOnlineFee (UUAddOnlineFeeRequest) returns (EmptyType)
+
+	@doc "订单回推"
+	@handler uuRetry
+	post /platform/callback/uuQuotation/retry (UURetryRequest) returns (EmptyType)
+
+	@doc "订单详情"
+	@handler uuDetail
+	post /platform/v1/order/detail (UUOrderDetailRequest) returns (UUOrderDetailResponse)
+}
+
+//======================SF 顺丰======================
+@server (
+	group:      "sf"
+	middleware: HTTPLogMiddleware
+)
+service upstreamPushApi {
+	@doc "订单创建"
+	@handler sfCreate
+	post /platform/sf/overflow/create (SfCreateRequest) returns (SfCreateResponse)
+
+	@doc "加小费"
+	@handler sfAddOnlineFee
+	post /platform/sf/overflow/add_online_fee (SfAddOnlineFeeRequest) returns (EmptyType)
+
+	@doc "预取消"
+	@handler sfBeforeCancel
+	post /platform/sf/overflow/before_cancel (SfBeforeCancelRequest) returns (EmptyType)
+
+	@doc "订单取消"
+	@handler sfCancel
+	post /platform/sf/overflow/cancel (SfCancelRequest) returns (SfCancelResponse)
+
+	@doc "查看骑手位置"
+	@handler sfGetShipperLocation
+	post /platform/sf/overflow/get_shipper_location (SfGetShipperLocationRequest) returns (SfGetShipperLocationResponse)
+
+	@doc "询价"
+	@handler sfGetPrice
+	post /platform/sf/overflow/getPrice (SfGetPriceRequest) returns (SfGetPriceResponse)
+
+	@doc "发布订单"
+	@handler sfPublishDown
+	post /platform/sf/overflow/publishDown (SfPublishDownRequest) returns (EmptyType)
+}
+
+//======================CHD 船到======================
+@server (
+	group:      "chd"
+	middleware: HTTPLogMiddleware
+)
+service upstreamPushApi {
+	@doc "订单创建"
+	@handler chdCreate
+	post /platform/callback/overflow/create (ChdCreateRequest) returns (ChdCreateResponse)
+
+	@doc "订单取消"
+	@handler chdCancel
+	post /platform/callback/overflow/cancel (ChdCancelRequest) returns (EmptyType)
+
+	@doc "加小费"
+	@handler chdAddOnlineFee
+	post /platform/callback/overflow/addOnlineFee (ChdAddOnlineFeeRequest) returns (EmptyType)
+
+	@doc "查询订单"
+	@handler chdGetOrder
+	post /platform/callback/overflow/getOrder (ChdGetOrderRequest) returns (ChdGetOrderResponse)
+}
+

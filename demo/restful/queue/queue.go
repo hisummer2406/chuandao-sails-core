@@ -18,7 +18,7 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/queue-api.yaml", "the config file")
+var configFile = flag.String("f", "etc/mq-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -74,5 +74,5 @@ func gracefulShutdown() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	sig := <-quit
-	logx.Infof("rocketmq received signal: %v, shutting down queue service...", sig)
+	logx.Infof("rocketmq received signal: %v, shutting down mq service...", sig)
 }

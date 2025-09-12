@@ -30,9 +30,9 @@ func WithDelay(delay time.Duration) MessageOption {
 }
 
 // WithFIFO 设置消息为FIFO队列
-func WithFIFO(grpup string) MessageOption {
+func WithFIFO(group string) MessageOption {
 	return func(msg *rmq_client.Message) {
-		msg.SetMessageGroup(grpup)
+		msg.SetMessageGroup(group)
 	}
 }
 

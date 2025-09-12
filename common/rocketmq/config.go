@@ -4,16 +4,13 @@ import "time"
 
 type Config struct {
 	//连接配置
-	Endpoint  string `json:"endpoint"`
-	AccessKey string `json:"access_key"`
-	SecretKey string `json:"secret_key"`
-	NameSpace string `json:"namespace"` //实例id
-
-	//生产者配置
-	Producer ProducerConfig `json:"producer"`
-
-	//消费者配置
-	Consumer ConsumerConfig `json:"consumer"`
+	Endpoint      string         `json:"endpoint"`
+	AccessKey     string         `json:"access_key"`
+	SecretKey     string         `json:"secret_key"`
+	NameSpace     string         `json:"namespace"`      //实例id
+	ConsumerGroup string         `json:"consumer_group"` //消费组
+	Producer      ProducerConfig `json:"producer"`       //生产者配置
+	Consumer      ConsumerConfig `json:"consumer"`       //消费者配置
 }
 
 type ProducerConfig struct {
@@ -33,12 +30,12 @@ type ConsumerConfig struct {
 func DefaultConfig() *Config {
 	return &Config{
 		Producer: ProducerConfig{
-			Topics:  []string{"default_topic"},
+			Topics:  []string{"demo-mp-helloworld"},
 			Timeout: 3 * time.Second,
 			Retries: 3,
 		},
 		Consumer: ConsumerConfig{
-			Group:             "default_group",
+			Group:             "demo-mp-gr",
 			AwaitDuration:     15 * time.Second,
 			MaxMessageNum:     32,
 			InvisibleDuration: 20 * time.Second,

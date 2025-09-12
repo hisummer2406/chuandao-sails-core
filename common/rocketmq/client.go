@@ -35,6 +35,7 @@ func NewClient(config *Config) (*Client, error) {
 		return nil, fmt.Errorf("rocketmq init producer failed: %v", err)
 	}
 
+	//初始化消费者
 	if err := client.initConsumer(); err != nil {
 		return nil, fmt.Errorf("rocketmq init consumer failed: %v", err)
 	}
@@ -68,17 +69,20 @@ func (c *Client) initProducer() error {
 }
 
 // initConsumer 初始化消费者
+// doc: https://help.aliyun.com/zh/apsaramq-for-rocketmq/cloud-message-queue-rocketmq-5-x-series/developer-reference/normal-messages?spm=a2c4g.11186623.help-menu-29530.d_5_0_8.e2006abcsS26gR#958bb2cf58h7h
 func (c *Client) initConsumer() error {
 	creds := &credentials.SessionCredentials{
 		AccessKey:    c.config.AccessKey,
 		AccessSecret: c.config.SecretKey,
 	}
 
+	//SimpleConsumer 是一种接口原子型的消费者类型，消息的获取、消费状态提交以及消费重试都是通过消费者业务逻辑主动发起调用完成。
 	consumer, err := rmq_client.NewSimpleConsumer(&rmq_client.Config{
-		Endpoint:    c.config.Endpoint,
-		NameSpace:   c.config.NameSpace,
-		Credentials: creds,
-	}, rmq_client.WithAwaitDuration(c.config.Consumer.AwaitDuration))
+		Endpoint:      c.config.Endpoint,
+		NameSpace:     c.config.NameSpace,
+		ConsumerGroup: c.config.Consumer.Group,
+		Credentials:   creds,
+	}, rmq_client.WithSimpleAwaitDuration(c.config.Consumer.AwaitDuration))
 
 	if err != nil {
 		return err
@@ -122,7 +126,13 @@ func (c *Client) Send(ctx context.Context, msg BusinessMessage) error {
 }
 
 // SendWithOptions 发送消息
-func (c *Client) sendWithOptions(ctx context.Context, topic string, body []byte, opts ...MessageOption) error {
+func (c *Client) SendWithOptions(ctx context.Context, topic string, body []byte, opts ...MessageOption) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.closed {
+		return fmt.Errorf("rocketmq client is closed")
+	}
 
 	message := &rmq_client.Message{
 		Topic: topic,
@@ -147,6 +157,7 @@ func (c *Client) SendAsync(ctx context.Context, msg BusinessMessage, callback fu
 	}()
 }
 
+// Subscribe 订阅发布
 func (c *Client) Subscribe(topic string, handler MessageHandler) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -166,13 +177,20 @@ func (c *Client) Subscribe(topic string, handler MessageHandler) error {
 
 // StartConsumer 启动消费者
 func (c *Client) StartConsumer() error {
+	c.mu.Lock()
+	if len(c.handlers) == 0 {
+		c.mu.Unlock()
+		return fmt.Errorf("no topics subscribed, please call Subscribe first")
+	}
+	c.mu.Unlock()
+
 	if err := c.consumer.Start(); err != nil {
 		return fmt.Errorf("rocketmq consumer start failed: %v", err)
 	}
 
+	//提高消费实时性，协程并发拉取
 	go c.consumerLoop()
 	return nil
-
 }
 
 // consumerLoop 消费者循环
@@ -181,8 +199,8 @@ func (c *Client) consumerLoop() {
 		//接收消息
 		messages, err := c.consumer.Receive(
 			context.Background(),
-			c.config.Consumer.MaxMessageNum,
-			c.config.Consumer.InvisibleDuration,
+			c.config.Consumer.MaxMessageNum,     //设置本次拉取的最大消息条数。
+			c.config.Consumer.InvisibleDuration, //设置消息的不可见时间。
 		)
 		if err != nil {
 			logx.Errorf("rocketmq consumer receive failed: %v", err)
@@ -219,7 +237,7 @@ func (c *Client) handleMessage(msg *rmq_client.MessageView) {
 		return
 	}
 
-	//确认消息
+	//消费处理完成后，需要主动调用ACK向服务端提交消费结果。
 	if err := c.consumer.Ack(context.Background(), msg); err != nil {
 		logx.Errorf("rocketmq consumer ack failed: %v", err)
 		return
@@ -240,6 +258,7 @@ func (c *Client) Close() error {
 	var errs []error
 
 	if c.producer != nil {
+		//优雅关闭
 		if err := c.producer.GracefulStop(); err != nil {
 			errs = append(errs, fmt.Errorf("rocketmq producer graceful stop failed: %v", err))
 		}
