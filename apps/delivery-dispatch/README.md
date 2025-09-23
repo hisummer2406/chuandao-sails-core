@@ -1,6 +1,7 @@
-#  配送调度域（delivery-dispatch）：配送平台对接与管理（platform）、动态定价与询价策略（pricing）、发单策略与路由规则（strategy）、发单服务（dispatch）
+# 配送调度域（delivery-dispatch）：配送平台对接与管理（delivery）、动态定价与询价策略（pricing）、发单策略与路由规则（strategy）、发单服务（dispatch）
 
 ## 1. 目录结构
+
 ```text
 delivery-dispatch-service/
 ├── api/                             # API定义目录
@@ -120,3 +121,31 @@ delivery-dispatch-service/
 * 规则引擎
 * A/B测试支持
 * 策略效果分析
+
+## 3. 配送平台
+
+### UU 
+-  openID 商户身份发单 点对点逻辑
+- https://open.uupt.com/#/development/guide?t=%E6%8E%A5%E5%85%A5%E6%B5%81%E7%A8%8B&index=1
+
+### 达达
+- 开发者身份 建店发单
+- https://newopen.imdada.cn/#/development/file/guide
+
+### 蜂鸟
+- 开发者身份 建店发单
+- https://open.ele.me/documents/openApi/1652
+
+### 闪送
+- 门店ID 商户身份发单 点对点
+- https://open.ishansong.com/documentCenter
+
+### 顺丰
+- shopId发单 无门店信息，用订单信息发单
+- https://openic.sf-express.com/#/apidoc
+
+## 4. PHP 同步细节
+
+数据表：
+    - UU storeId: 84243 ，写死的openid: 9f58f2a142824f3186ffde6d2eb6561a
+    - 平台可调度运力配置：config_user_store

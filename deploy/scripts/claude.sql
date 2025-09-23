@@ -321,7 +321,7 @@ VALUES ('beijing', '北京配送策略', 'city', '110000', '北京市', '{
           "off_peak_hours": 1.0
         }
       },
-      "service_config": {
+      "service_config": { 
         "max_distance_km": 25,
         "estimated_delivery_time_minutes": 40
       }

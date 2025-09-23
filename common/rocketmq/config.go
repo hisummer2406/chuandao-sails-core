@@ -30,12 +30,12 @@ type ConsumerConfig struct {
 func DefaultConfig() *Config {
 	return &Config{
 		Producer: ProducerConfig{
-			Topics:  []string{"demo-mp-helloworld"},
+			Topics:  []string{"demo-mq-helloworld"},
 			Timeout: 3 * time.Second,
 			Retries: 3,
 		},
 		Consumer: ConsumerConfig{
-			Group:             "demo-mp-gr",
+			Group:             "demo-mq-gr",
 			AwaitDuration:     15 * time.Second,
 			MaxMessageNum:     32,
 			InvisibleDuration: 20 * time.Second,
