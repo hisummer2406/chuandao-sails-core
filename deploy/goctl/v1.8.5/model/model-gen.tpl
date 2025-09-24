@@ -7,7 +7,6 @@ package {{.pkg}}
 {{.vars}}
 {{.types}}
 {{.new}}
-{{.delete}}
 {{.find}}
 {{.insert}}
 {{.update}}
