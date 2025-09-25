@@ -12,6 +12,7 @@ import (
 	"chd/chd.api"
 )
 
+//公共参数
 type SignType {
 	AppId     string `json:"appId"`
 	Timestamp string `json:"timestamp"`
@@ -21,14 +22,20 @@ type SignType {
 
 type EmptyType {}
 
+//健康检查
+service upstreamPushApi {
+	@handler health
+	get /health returns (EmptyType)
+}
+
 //======================UU======================
 @server (
 	group:      "uu"
-	middleware: HTTPLogMiddleware
+	middleware: HTTPLogMiddleware,SignMiddleware
 )
 service upstreamPushApi {
 	@doc "接收订单"
-	@handler uuGateway
+	@handler uuCreate
 	post /platform/callback/uuQuotation/create (UUCreateOrderRequest) returns (EmptyType)
 
 	@doc "取消订单"
@@ -86,7 +93,7 @@ service upstreamPushApi {
 //======================CHD 船到======================
 @server (
 	group:      "chd"
-	middleware: HTTPLogMiddleware
+	middleware: HTTPLogMiddleware,SignMiddleware
 )
 service upstreamPushApi {
 	@doc "订单创建"

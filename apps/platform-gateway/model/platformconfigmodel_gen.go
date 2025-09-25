@@ -32,7 +32,6 @@ type (
 		Insert(ctx context.Context, data *PlatformConfig) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*PlatformConfig, error)
 		Update(ctx context.Context, data *PlatformConfig) error
-		Delete(ctx context.Context, id uint64) error
 	}
 
 	defaultPlatformConfigModel struct {

@@ -26,7 +26,7 @@ func (b *BusinessError) Error() string {
 }
 
 const (
-	SuccessCode      = 200 // 成功
+	SuccessCode      = 0   // 成功
 	BusinessErrCode  = 400 // 业务错误
 	UnauthorizedCode = 401 // 未授权
 	ForbiddenCode    = 403 // 禁止访问
@@ -96,12 +96,12 @@ func NewNotFoundErrorWithCtx(ctx context.Context) *BusinessError {
 }
 
 // NewSystemError 系统错误
-func NewSystemError(requestID string) *BusinessError {
+func NewSystemError(ctx context.Context) *BusinessError {
 	return &BusinessError{
 		Code:      SystemErrCode,
 		Msg:       "系统错误",
 		Data:      make(map[string]interface{}),
-		RequestID: requestID,
+		RequestID: GetRequestID(ctx),
 	}
 }
 
@@ -116,12 +116,15 @@ func HandleResponse(w http.ResponseWriter, r *http.Request, data interface{}, er
 			//系统错误，返回系统错误信息
 			httpx.OkJson(w, &Response{
 				Code:      SystemErrCode,
-				Msg:       "系统内部错误",
+				Msg:       err.Error(),
 				Data:      make(map[string]interface{}),
 				RequestID: GetRequestID(r.Context()),
 			})
 		}
 	} else {
+		if data == nil {
+			data = make(map[string]interface{})
+		}
 		//成功返回
 		httpx.OkJson(w, &Response{
 			Code:      SuccessCode,
@@ -156,6 +159,9 @@ func SFHandlerResponse(w http.ResponseWriter, r *http.Request, data interface{},
 			})
 		}
 	} else {
+		if data == nil {
+			data = make(map[string]interface{})
+		}
 		// 成功情况：errno = 0
 		httpx.OkJson(w, &SFResponse{
 			Data:   data,
