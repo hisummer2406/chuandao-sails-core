@@ -85,7 +85,7 @@ func HTTPLogMiddleware() func(http.HandlerFunc) http.HandlerFunc {
 				logx.Field("response_size", wrapped.size),
 				logx.Field("trace", traceID),
 				logx.Field("span", spanID),
-				logx.Field("caller", getCaller()),
+				//logx.Field("caller", getCaller()),
 			)
 		}
 	}

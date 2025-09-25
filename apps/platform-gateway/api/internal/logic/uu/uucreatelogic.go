@@ -2,9 +2,10 @@ package uu
 
 import (
 	"chuandao-sails-core/apps/platform-gateway/api/internal/svc"
-	"chuandao-sails-core/apps/platform-gateway/api/internal/types"
+	"chuandao-sails-core/apps/platform-gateway/api/types"
 	"context"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,6 +29,7 @@ func (l *UuCreateLogic) UuCreate(req *types.UUCreateOrderRequest) (resp interfac
 	config, err := l.svcCtx.PlatformModel.FindOneByAppId(l.ctx, req.AppId)
 
 	if err != nil {
+		logc.Error(l.ctx, "UuCreateLogic FindOneByAppId error", err)
 		return nil, err
 	}
 

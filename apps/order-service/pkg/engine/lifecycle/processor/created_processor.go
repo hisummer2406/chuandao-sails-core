@@ -26,7 +26,7 @@ func (p *OrderCreatedProcessor) EventTypes() []string {
 }
 
 func (p *OrderCreatedProcessor) Handle(ctx context.Context, msg *event.OrderEventMessage) error {
-	p.logger.Infof("Processing order event message: %v", msg)
+	p.logger.Infof("Processing order events message: %v", msg)
 
 	err := p.deliveryClient.StartDispatch(ctx, &client.DeliveryDispatchRequest{
 		OrderID: msg.OrderID,

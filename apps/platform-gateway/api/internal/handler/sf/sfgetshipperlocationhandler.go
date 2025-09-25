@@ -1,12 +1,12 @@
 package sf
 
 import (
+	"chuandao-sails-core/apps/platform-gateway/api/types"
 	"chuandao-sails-core/common/response"
 	"net/http"
 
 	"chuandao-sails-core/apps/platform-gateway/api/internal/logic/sf"
 	"chuandao-sails-core/apps/platform-gateway/api/internal/svc"
-	"chuandao-sails-core/apps/platform-gateway/api/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 

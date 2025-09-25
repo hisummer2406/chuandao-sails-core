@@ -1,11 +1,10 @@
 package uu
 
 import (
+	"chuandao-sails-core/apps/platform-gateway/api/types"
 	"context"
 
 	"chuandao-sails-core/apps/platform-gateway/api/internal/svc"
-	"chuandao-sails-core/apps/platform-gateway/api/internal/types"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 

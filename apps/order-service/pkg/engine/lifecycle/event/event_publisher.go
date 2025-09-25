@@ -26,8 +26,8 @@ func (p *Publisher) PublishOrderEvent(ctx context.Context, eventType, orderID, o
 	msg := NewOrderEventMessage(eventType, orderID, orderNo, data)
 
 	if err := p.client.Send(ctx, msg); err != nil {
-		p.logger.Errorf("Failed to publish order event: %s for order %s: %v", eventType, orderID, err)
-		return fmt.Errorf("publish order event: %w", err)
+		p.logger.Errorf("Failed to publish order events: %s for order %s: %v", eventType, orderID, err)
+		return fmt.Errorf("publish order events: %w", err)
 	}
 
 	p.logger.Infof("Successfully published: %s eventID: %s for orderID %s", eventType, msg.EventID, orderID)

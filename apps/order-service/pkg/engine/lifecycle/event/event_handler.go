@@ -40,21 +40,21 @@ func (h *HandlerManager) HandleMessage(ctx context.Context, msgView *rmq_client.
 	//解析事件消息
 	var eventMsg OrderEventMessage
 	if err := jsonx.Unmarshal(msgView.GetBody(), &eventMsg); err != nil {
-		h.logger.Errorf("Failed to unmarshal order event message: %v", err)
+		h.logger.Errorf("Failed to unmarshal order events message: %v", err)
 		return err
 	}
 
 	//获取事件处理器
 	handlers, exists := h.handlers[eventMsg.EventType]
 	if !exists {
-		h.logger.Errorf("Unknown event type: %s", eventMsg.EventType)
+		h.logger.Errorf("Unknown events type: %s", eventMsg.EventType)
 		return nil
 	}
 
 	//依次执行处理器
 	for _, handler := range handlers {
 		if err := handler.Handle(ctx, &eventMsg); err != nil {
-			h.logger.Errorf("Failed to handle event: %v", err)
+			h.logger.Errorf("Failed to handle events: %v", err)
 			return err
 		}
 	}
