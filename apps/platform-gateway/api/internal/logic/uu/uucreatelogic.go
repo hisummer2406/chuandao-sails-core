@@ -3,6 +3,8 @@ package uu
 import (
 	"chuandao-sails-core/apps/platform-gateway/api/internal/svc"
 	"chuandao-sails-core/apps/platform-gateway/api/types"
+	"chuandao-sails-core/apps/platform-gateway/pkg/constants"
+	"chuandao-sails-core/apps/platform-gateway/pkg/platform/adapter"
 	"context"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logc"
@@ -25,13 +27,7 @@ func NewUuCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UuCreate
 }
 
 func (l *UuCreateLogic) UuCreate(req *types.UUCreateOrderRequest) (resp interface{}, err error) {
-	fmt.Printf("UUCreateOrderRequest appId: %s , %s", req.AppId, req.Sign)
-	config, err := l.svcCtx.PlatformModel.FindOneByAppId(l.ctx, req.AppId)
-
-	if err != nil {
-		logc.Error(l.ctx, "UuCreateLogic FindOneByAppId error", err)
-		return nil, err
-	}
+	//数据格式标准化
 
 	return config, nil
 }

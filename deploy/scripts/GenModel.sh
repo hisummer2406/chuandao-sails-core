@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #目标表名
-tableName=platform_config
+tableName=city_region_mapping
 #目标目录
 targetDir=./model
 

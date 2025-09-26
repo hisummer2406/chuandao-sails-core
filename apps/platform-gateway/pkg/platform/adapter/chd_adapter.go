@@ -6,6 +6,7 @@ import (
 	"chuandao-sails-core/apps/platform-gateway/pkg/platform/events"
 	"chuandao-sails-core/apps/platform-gateway/pkg/platform/utils"
 	"chuandao-sails-core/common/snowflake"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"strconv"
 	"time"
@@ -14,14 +15,18 @@ import (
 // CHDAdapter 船到平台适配器
 type CHDAdapter struct{}
 
-func (a *CHDAdapter) TransformToStandardOrder(req *types.ChdCreateRequest) (*events.StandardOrderCreateEvent, error) {
+func (a *CHDAdapter) TransformToStandardOrder(data interface{}) (*events.StandardOrderCreateEvent, error) {
+	req, ok := data.(*types.ChdCreateRequest)
+	if !ok {
+		return nil, fmt.Errorf("invalid request type for CHDAdapter In TransformToStandardOrder")
+	}
 	// 解析商品明细
 	var productList []events.ProductDetailItem
 	if req.ProductDetail != "" {
 		jsonx.Unmarshal([]byte(req.ProductDetail), &productList)
 	}
 
-	orderId, err := snowflake.GenerateOrderId()
+	orderId, err := snowflake.GenerateOrderNoWithPrefix(constants.PLATFORM_CHD)
 	if err != nil {
 		return nil, err
 	}
@@ -84,12 +89,12 @@ func (a *CHDAdapter) TransformToStandardOrder(req *types.ChdCreateRequest) (*eve
 		// 配送选项
 		DeliveryOptions: &events.DeliveryOptions{
 			IsInsurance: req.IsInsurance == 1,
+			SfStoreId:   req.SfStoreId, //小镇外卖兼容字段 不独立建字段，写入拓展字段
 		},
 
 		// 附加信息
 		Note:            req.Note,
 		DisableDelivery: req.DisableDelivery,
-		SfStoreId:       req.SfStoreId,
 
 		// 系统字段
 		CreatedAt: time.Now(),

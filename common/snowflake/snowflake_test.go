@@ -8,33 +8,33 @@ import (
 )
 
 // Example_基本使用
-func Example_basicUsage() {
+func TestExample_BasicUsage(t *testing.T) {
 	// 1. 创建生成器（机器ID=1）
-	generator, err := NewOrderIdGenerator(1)
+	generator, err := NewOrderNoGenerator(1)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 
 	// 2. 生成订单ID
-	orderId, err := generator.GenerateOrderId()
+	orderNo, err := generator.GenerateOrderNo()
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
-	fmt.Printf("生成的订单ID: %s\n", orderId)
+	fmt.Printf("生成的订单ID: %s\n", orderNo)
 
 	// 3. 生成数字ID
 	numId, err := generator.GenerateId()
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 	fmt.Printf("生成的数字ID: %d\n", numId)
 
 	// 4. 自定义前缀
-	customOrderId, err := generator.GenerateOrderIdWithPrefix("MEAL")
+	customOrderNo, err := generator.GenerateOrderNoWithPrefix("MEAL")
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
-	fmt.Printf("自定义前缀订单ID: %s\n", customOrderId)
+	fmt.Printf("自定义前缀订单ID: %s\n", customOrderNo)
 }
 
 // Example_全局单例使用
@@ -46,21 +46,21 @@ func Example_singletonUsage() {
 	}
 
 	// 2. 直接使用便捷方法
-	orderId, err := GenerateOrderId()
+	orderNo, err := GenerateOrderNo()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("单例生成的订单ID: %s\n", orderId)
+	fmt.Printf("单例生成的订单ID: %s\n", orderNo)
 
 	// 3. 解析订单ID
-	timestamp, workerId, sequence, err := ParseOrderId(orderId)
+	timestamp, workerId, sequence, err := ParseOrderNo(orderNo)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("时间戳: %d, 机器ID: %d, 序列号: %d\n", timestamp, workerId, sequence)
 
 	// 4. 获取创建时间
-	createTime, err := GetOrderCreateTime(orderId)
+	createTime, err := GetOrderCreateTime(orderNo)
 	if err != nil {
 		panic(err)
 	}
@@ -69,22 +69,22 @@ func Example_singletonUsage() {
 
 // Example_批量生成
 func Example_batchGenerate() {
-	generator, _ := NewOrderIdGenerator(3)
+	generator, _ := NewOrderNoGenerator(3)
 
 	// 批量生成10个订单ID
-	orderIds, err := generator.BatchGenerate(10)
+	orderNos, err := generator.BatchGenerate(10)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("批量生成的订单ID:\n")
-	for i, id := range orderIds {
+	for i, id := range orderNos {
 		fmt.Printf("%d: %s\n", i+1, id)
 	}
 }
 
-// TestGenerateOrderId_ShowOutput 查看订单ID生成结果
-func TestGenerateOrderId_ShowOutput(t *testing.T) {
+// TestGenerateOrderNo_ShowOutput 查看订单ID生成结果
+func TestGenerateOrderNo_ShowOutput(t *testing.T) {
 	// 初始化生成器
 	err := InitDefaultGenerator(1)
 	if err != nil {
@@ -94,23 +94,23 @@ func TestGenerateOrderId_ShowOutput(t *testing.T) {
 	fmt.Println("\n=== 订单ID生成结果测试 ===")
 
 	// 生成单个订单ID
-	orderId, err := GenerateOrderId()
+	orderNo, err := GenerateOrderNo()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fmt.Printf("生成的订单ID: %s\n", orderId)
-	fmt.Printf("ID长度: %d 字符\n", len(orderId))
-	fmt.Printf("前缀: %s\n", orderId[:3])
-	fmt.Printf("数字部分: %s\n", orderId[3:])
+	fmt.Printf("生成的订单ID: %s\n", orderNo)
+	fmt.Printf("ID长度: %d 字符\n", len(orderNo))
+	fmt.Printf("前缀: %s\n", orderNo[:3])
+	fmt.Printf("数字部分: %s\n", orderNo[3:])
 
 	// 解析订单ID获取详细信息
-	timestamp, workerId, sequence, err := ParseOrderId(orderId)
+	timestamp, workerId, sequence, err := ParseOrderNo(orderNo)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	createTime, _ := GetOrderCreateTime(orderId)
+	createTime, _ := GetOrderCreateTime(orderNo)
 
 	fmt.Println("\n--- ID解析结果 ---")
 	fmt.Printf("时间戳: %d\n", timestamp)
@@ -119,11 +119,11 @@ func TestGenerateOrderId_ShowOutput(t *testing.T) {
 	fmt.Printf("创建时间: %s\n", createTime.Format("2006-01-02 15:04:05.000"))
 
 	// 验证基本属性
-	if len(orderId) != 22 {
-		t.Errorf("期望ID长度22，实际%d", len(orderId))
+	if len(orderNo) != 22 {
+		t.Errorf("期望ID长度22，实际%d", len(orderNo))
 	}
-	if orderId[:3] != "ORD" {
-		t.Errorf("期望前缀ORD，实际%s", orderId[:3])
+	if orderNo[:3] != "ORD" {
+		t.Errorf("期望前缀ORD，实际%s", orderNo[:3])
 	}
 	if workerId != 1 {
 		t.Errorf("期望机器ID为1，实际%d", workerId)
@@ -132,7 +132,7 @@ func TestGenerateOrderId_ShowOutput(t *testing.T) {
 
 // Test_并发安全性测试
 func Test_ConcurrentSafety(t *testing.T) {
-	generator, err := NewOrderIdGenerator(1)
+	generator, err := NewOrderNoGenerator(1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,12 +149,12 @@ func Test_ConcurrentSafety(t *testing.T) {
 		go func(workerNum int) {
 			defer wg.Done()
 			for j := 0; j < idsPerGoroutine; j++ {
-				orderId, err := generator.GenerateOrderId()
+				orderNo, err := generator.GenerateOrderNo()
 				if err != nil {
 					t.Errorf("Worker %d: %v", workerNum, err)
 					return
 				}
-				idChan <- orderId
+				idChan <- orderNo
 			}
 		}(i)
 	}
@@ -166,12 +166,12 @@ func Test_ConcurrentSafety(t *testing.T) {
 	idSet := make(map[string]bool)
 	duplicates := 0
 
-	for orderId := range idChan {
-		if idSet[orderId] {
+	for orderNo := range idChan {
+		if idSet[orderNo] {
 			duplicates++
-			t.Errorf("发现重复ID: %s", orderId)
+			t.Errorf("发现重复ID: %s", orderNo)
 		}
-		idSet[orderId] = true
+		idSet[orderNo] = true
 	}
 
 	expectedCount := goroutines * idsPerGoroutine
@@ -190,7 +190,7 @@ func Test_ConcurrentSafety(t *testing.T) {
 
 // Test_性能测试
 func Test_Performance(t *testing.T) {
-	generator, err := NewOrderIdGenerator(1)
+	generator, err := NewOrderNoGenerator(1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -218,20 +218,20 @@ func Test_Performance(t *testing.T) {
 }
 
 // Test_ID解析测试
-func Test_ParseOrderId(t *testing.T) {
-	generator, err := NewOrderIdGenerator(123)
+func Test_ParseOrderNo(t *testing.T) {
+	generator, err := NewOrderNoGenerator(123)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// 生成订单ID
-	orderId, err := generator.GenerateOrderId()
+	orderNo, err := generator.GenerateOrderNo()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// 解析订单ID
-	timestamp, workerId, sequence, err := generator.ParseOrderId(orderId)
+	timestamp, workerId, sequence, err := generator.ParseOrderNo(orderNo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -253,12 +253,12 @@ func Test_ParseOrderId(t *testing.T) {
 	}
 
 	t.Logf("解析成功 - 订单ID: %s, 时间戳: %d, 机器ID: %d, 序列号: %d",
-		orderId, timestamp, workerId, sequence)
+		orderNo, timestamp, workerId, sequence)
 }
 
 // Test_时钟回拨测试
 func Test_ClockBackwards(t *testing.T) {
-	generator, err := NewOrderIdGenerator(1)
+	generator, err := NewOrderNoGenerator(1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -282,8 +282,8 @@ func Test_ClockBackwards(t *testing.T) {
 }
 
 // Benchmark_生成订单ID性能基准测试
-func Benchmark_GenerateOrderId(b *testing.B) {
-	generator, err := NewOrderIdGenerator(1)
+func Benchmark_GenerateOrderNo(b *testing.B) {
+	generator, err := NewOrderNoGenerator(1)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -291,7 +291,7 @@ func Benchmark_GenerateOrderId(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			_, err := generator.GenerateOrderId()
+			_, err := generator.GenerateOrderNo()
 			if err != nil {
 				b.Fatal(err)
 			}
@@ -301,7 +301,7 @@ func Benchmark_GenerateOrderId(b *testing.B) {
 
 // Benchmark_生成数字ID性能基准测试
 func Benchmark_GenerateId(b *testing.B) {
-	generator, err := NewOrderIdGenerator(1)
+	generator, err := NewOrderNoGenerator(1)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -326,13 +326,13 @@ func Example_inBusinessCode() {
 	}
 
 	// 在业务逻辑中使用
-	orderId, err := GenerateOrderId()
+	orderNo, err := GenerateOrderNo()
 	if err != nil {
 		// 处理错误
 		return
 	}
 
-	fmt.Printf("新订单ID: %s\n", orderId)
+	fmt.Printf("新订单ID: %s\n", orderNo)
 }
 
 // 模拟配置获取函数

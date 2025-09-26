@@ -43,7 +43,6 @@ type StandardOrderCreateEvent struct {
 	Note                string `json:"note"`                  // 备注
 	DisableDelivery     string `json:"disable_delivery"`      // 禁用配送方
 	DisableDeliveryList []int  `json:"disable_delivery_list"` // 禁用配送方ID列表
-	SfStoreId           string `json:"sf_store_id"`           // 顺丰门店ID
 
 	// === 系统字段 ===
 	CreatedAt time.Time `json:"created_at"` // 创建时间
@@ -102,4 +101,5 @@ type DeliveryOptions struct {
 	IsDeliveryImg  bool   `json:"is_delivery_img"`  // 是否需要妥投照片 UU
 	IsCityShop     bool   `json:"is_city_shop"`     // 是否城市型店铺 SF
 	WeatherLevel   string `json:"weather_level"`    // 天气等级 SF
+	SfStoreId      string `json:"sf_store_id"`      // 顺丰门店ID 小镇外卖兼容字段
 }

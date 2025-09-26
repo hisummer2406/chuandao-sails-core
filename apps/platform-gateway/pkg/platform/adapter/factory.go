@@ -17,6 +17,10 @@ func (f *AdapterFactory) GetAdapter(platCode string) AdapterInterface {
 	switch platCode {
 	case constants.PLATFORM_UU:
 		return &UUAdapter{}
+	case constants.PLATFORM_SF:
+		return &SFAdapter{}
+	case constants.PLATFORM_CHD:
+		return &CHDAdapter{}
 	default:
 		return nil
 	}

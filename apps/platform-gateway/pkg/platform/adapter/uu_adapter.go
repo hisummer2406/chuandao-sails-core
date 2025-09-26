@@ -5,20 +5,26 @@ import (
 	"chuandao-sails-core/apps/platform-gateway/pkg/constants"
 	"chuandao-sails-core/apps/platform-gateway/pkg/platform/events"
 	"chuandao-sails-core/common/snowflake"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"time"
 )
 
 type UUAdapter struct{}
 
-func (a *UUAdapter) TransformToStandardOrder(req *types.UUCreateOrderRequest) (*events.StandardOrderCreateEvent, error) {
+func (a *UUAdapter) TransformToStandardOrder(data interface{}) (*events.StandardOrderCreateEvent, error) {
+	req, ok := data.(*types.UUCreateOrderRequest)
+	if !ok {
+		return nil, fmt.Errorf("invalid request type for UUAdapter In TransformToStandardOrder")
+	}
+
 	// 解析商品明细
 	var productList []events.ProductDetailItem
 	if req.ProductDetail != "" {
 		jsonx.Unmarshal([]byte(req.ProductDetail), &productList)
 	}
 
-	orderId, err := snowflake.GenerateOrderId()
+	orderId, err := snowflake.GenerateOrderNoWithPrefix(constants.PLATFORM_UU)
 	if err != nil {
 		return nil, err
 	}

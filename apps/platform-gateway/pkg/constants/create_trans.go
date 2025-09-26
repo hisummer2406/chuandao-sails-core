@@ -2,9 +2,9 @@ package constants
 
 // 数据类型常量
 const (
-	PLATFORM_UU  = "UU"  // UU格式
-	PLATFORM_SF  = "SF"  // 顺丰格式
-	PLATFORM_CHD = "CHD" // 船到格式
+	PLATFORM_UU  = "PUU"  // UU格式
+	PLATFORM_SF  = "PSF"  // 顺丰格式
+	PLATFORM_CHD = "PCHD" // 船到格式
 )
 
 // 订单类型常量

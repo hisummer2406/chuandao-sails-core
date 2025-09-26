@@ -6,6 +6,7 @@ import (
 	"chuandao-sails-core/apps/platform-gateway/pkg/platform/events"
 	"chuandao-sails-core/apps/platform-gateway/pkg/platform/utils"
 	"chuandao-sails-core/common/snowflake"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"time"
 )
@@ -13,14 +14,19 @@ import (
 // SFAdapter 顺丰平台适配器
 type SFAdapter struct{}
 
-func (a *SFAdapter) TransformToStandardOrder(req *types.SfCreateRequest) (*events.StandardOrderCreateEvent, error) {
+func (a *SFAdapter) TransformToStandardOrder(data interface{}) (*events.StandardOrderCreateEvent, error) {
+	req, ok := data.(*types.SfCreateRequest)
+	if !ok {
+		return nil, fmt.Errorf("invalid request type for SFAdapter In TransformToStandardOrder")
+	}
+	
 	// 解析商品信息
 	var productList []events.ProductDetailItem
 	if req.Goods != "" {
 		jsonx.Unmarshal([]byte(req.Goods), &productList)
 	}
 
-	orderId, err := snowflake.GenerateOrderId()
+	orderId, err := snowflake.GenerateOrderNoWithPrefix(constants.PLATFORM_SF)
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +102,7 @@ func (a *SFAdapter) TransformToStandardOrder(req *types.SfCreateRequest) (*event
 		},
 
 		// 附加信息
-		Note:      req.OrderRemark,
-		SfStoreId: "", // 在请求中未直接体现
+		Note: req.OrderRemark,
 
 		// 系统字段
 		CreatedAt: time.Now(),
