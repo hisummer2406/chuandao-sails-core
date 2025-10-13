@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #目标表名
-tableName=city_region_mapping
+tableName=order_penalty_record
 #目标目录
 targetDir=./model
 
@@ -10,7 +10,7 @@ host=localhost
 port=3306
 user=root
 password=pwd123
-dbname=cdts_platform_db
+dbname=cdts_order_db
 templateHome=../goctl/v1.8.5
 
 echo "开始生成库：$dbname 的表 $tableName"
