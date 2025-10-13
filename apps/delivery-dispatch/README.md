@@ -122,6 +122,9 @@ delivery-dispatch-service/
 * A/B测试支持
 * 策略效果分析
 
+### 架构思路记录
+1.  适配器模式 + 责任链模式 + 装饰器模式
+
 ## 3. 配送平台
 
 ### UU 
@@ -148,4 +151,4 @@ delivery-dispatch-service/
 
 数据表：
     - UU storeId: 84243 ，写死的openid: 9f58f2a142824f3186ffde6d2eb6561a
-    - 平台可调度运力配置：config_user_store
+    - 平台调度运力配置：config_user_store
