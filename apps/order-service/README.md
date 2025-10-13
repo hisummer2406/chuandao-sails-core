@@ -237,3 +237,32 @@ MQ接收订单消息 → 数据验证 → 生成订单号 → 写入数据库 �
 佛山市	0757
 合肥市	0551
 青岛市	0532
+
+
+## 5. 消息队列设计
+### Topic设计（4个Topic）
+
+1. upstream-push-topic (上游推单专用) 🔥 核心
+  - 消息: 上游平台原始推单
+  - 优先级: 最高
+  - 保留时间: 72小时（防丢单）
+  - 消费者组:
+    * order-create-group: 创建订单
+
+2. order-event-topic (订单内部事件)
+  - 消息: ORDER_CREATED, ORDER_PAID, ORDER_CANCELED
+  - 消费者组:
+    * delivery-dispatch-group: 触发配送
+    * finance-group: 财务处理
+    * notification-group: 通知
+
+3. delivery-event-topic (配送事件)
+  - 消息: DISPATCH_SUCCESS, DELIVERY_STATUS_CHANGE
+  - 消费者组:
+    * order-sync-group: 状态同步
+    * finance-group: 结算
+
+4. system-event-topic (系统事件)
+  - 消息: PRICE_CACHE_UPDATE, CONFIG_CHANGE
+  - 消费者组:
+    * config-sync-group: 配置同步
