@@ -1,20 +1,13 @@
 package event
 
-import "time"
-
-// 基础事件结构
-type BaseEvent struct {
-	EventID   string                 `json:"event_id"`   //事件唯一ID
-	EventType string                 `json:"event_type"` //事件类型
-	Source    string                 `json:"source"`     //事件源
-	Timestamp int64                  `json:"timestamp"`  //事件时间
-	Version   string                 `json:"version"`    //时间版本
-	Metadata  map[string]interface{} `json:"metadata"`   //元数据
-}
+import (
+	"chuandao-sails-core/common/events"
+	"time"
+)
 
 // 订单事件
 type OrderEvent struct {
-	BaseEvent
+	events.BaseEvent
 	OrderID         string      `json:"order_id"`          //订单ID
 	OrderNo         string      `json:"order_no"`          //订单号
 	PlatformOrderNo string      `json:"platform_order_no"` //平台订单号

@@ -19,14 +19,14 @@ func (a *SFAdapter) TransformToStandardOrder(data interface{}) (*events.Standard
 	if !ok {
 		return nil, fmt.Errorf("invalid request type for SFAdapter In TransformToStandardOrder")
 	}
-	
+
 	// 解析商品信息
 	var productList []events.ProductDetailItem
 	if req.Goods != "" {
 		jsonx.Unmarshal([]byte(req.Goods), &productList)
 	}
 
-	orderId, err := snowflake.GenerateOrderNoWithPrefix(constants.PLATFORM_SF)
+	orderNo, err := snowflake.GenerateOrderNoWithPrefix(constants.PLATFORM_SF)
 	if err != nil {
 		return nil, err
 	}
@@ -40,9 +40,9 @@ func (a *SFAdapter) TransformToStandardOrder(data interface{}) (*events.Standard
 
 	return &events.StandardOrderCreateEvent{
 		// 基本信息
-		OrderId:         orderId,
+		OrderNo:         orderNo,
 		UpstreamOrderId: req.OrderNo,
-		Platform:        constants.PLATFORM_SF,
+		PlatformCode:    constants.PLATFORM_SF,
 		OrderSource:     req.Source,
 		OrderNum:        req.OrderSn,
 		CityName:        "", // 通过AdCode获取

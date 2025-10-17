@@ -37,8 +37,6 @@
 1. 裹小递 / 快服务使用
 2. 船到定义数据结构，厂商主动推送
 
-
-
 ## 4. PHP同步细节
 
 ### 1. 删除 `store` 逻辑，接单直接发单
@@ -47,3 +45,22 @@
     - business_store_user 商户信息表
     - config_store_auto 自动发单配置表
     - config_user_store 账户信息配置表，存储发单配置，渠道店铺ID等
+
+## 5.队列设计
+```yaml
+负责范围:
+  ✅ 接收上游平台的HTTP回调
+  ✅ 协议转换为标准格式
+  ✅ 数据校验和清洗
+  ✅ 发送到MQ解耦
+  
+处理接口:
+  - POST /platform/callback/uu/create (UU推单)
+  - POST /platform/callback/uu/cancel (UU取消)
+  - POST /platform/callback/uu/addOnlineFee (UU加小费)
+  - POST /platform/callback/sf/create (顺丰推单)
+  
+发布到MQ:
+  - upstream-push-topic (订单创建)
+  - upstream-operation-topic (订单操作: 取消/加小费)
+```

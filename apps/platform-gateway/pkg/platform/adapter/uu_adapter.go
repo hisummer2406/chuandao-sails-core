@@ -24,16 +24,16 @@ func (a *UUAdapter) TransformToStandardOrder(data interface{}) (*events.Standard
 		jsonx.Unmarshal([]byte(req.ProductDetail), &productList)
 	}
 
-	orderId, err := snowflake.GenerateOrderNoWithPrefix(constants.PLATFORM_UU)
+	orderNo, err := snowflake.GenerateOrderNoWithPrefix(constants.PLATFORM_UU)
 	if err != nil {
 		return nil, err
 	}
 
 	return &events.StandardOrderCreateEvent{
 		// 基本信息
-		OrderId:         orderId,
+		OrderNo:         orderNo,
 		UpstreamOrderId: req.DeliveryId,
-		Platform:        constants.PLATFORM_UU,
+		PlatformCode:    constants.PLATFORM_UU,
 		OrderSource:     req.OrderSource,
 		OrderNum:        req.OrderNum,
 		CityName:        req.CityName,

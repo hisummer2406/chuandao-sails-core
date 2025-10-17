@@ -5,7 +5,6 @@
 package model
 
 import (
-	model2 "chuandao-sails-core/deploy/scripts/model"
 	"context"
 	"database/sql"
 	"fmt"
@@ -41,17 +40,17 @@ type (
 	}
 
 	OrderStatusLog struct {
-		Id           uint64         `db:"id"`            // 主键ID
-		OrderNo      string         `db:"order_no"`      // 订单号
-		FromStatus   sql.NullString `db:"from_status"`   // 原状态
-		ToStatus     string         `db:"to_status"`     // 目标状态
-		ChangeReason sql.NullString `db:"change_reason"` // 变更原因
-		OperatorId   sql.NullString `db:"operator_id"`   // 操作者ID
-		OperatorType string         `db:"operator_type"` // 操作者类型(SYSTEM/USER/PLATFORM)
-		OperatorName sql.NullString `db:"operator_name"` // 操作者名称
-		ExtraData    sql.NullString `db:"extra_data"`    // 扩展数据
-		Remark       sql.NullString `db:"remark"`        // 备注
-		CreatedAt    time.Time      `db:"created_at"`    // 创建时间
+		Id           uint64    `db:"id"`            // 主键ID
+		OrderNo      string    `db:"order_no"`      // 订单号
+		FromStatus   string    `db:"from_status"`   // 原状态
+		ToStatus     string    `db:"to_status"`     // 目标状态
+		ChangeReason string    `db:"change_reason"` // 变更原因
+		OperatorId   string    `db:"operator_id"`   // 操作者ID
+		OperatorType string    `db:"operator_type"` // 操作者类型(SYSTEM/USER/PLATFORM)
+		OperatorName string    `db:"operator_name"` // 操作者名称
+		ExtraData    string    `db:"extra_data"`    // 扩展数据 JSON
+		Remark       string    `db:"remark"`        // 备注
+		CreatedAt    time.Time `db:"created_at"`    // 创建时间
 	}
 )
 
@@ -73,7 +72,7 @@ func (m *defaultOrderStatusLogModel) FindOne(ctx context.Context, id uint64) (*O
 	case nil:
 		return &resp, nil
 	case sqlc.ErrNotFound:
-		return nil, model2.ErrNotFound
+		return nil, ErrNotFound
 	default:
 		return nil, err
 	}

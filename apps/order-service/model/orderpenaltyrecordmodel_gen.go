@@ -42,20 +42,20 @@ type (
 	}
 
 	OrderPenaltyRecord struct {
-		Id                uint64         `db:"id"`                 // 主键ID
-		PenaltyId         string         `db:"penalty_id"`         // 违约记录ID
-		OrderNo           string         `db:"order_no"`           // 订单号
-		PenaltyType       string         `db:"penalty_type"`       // 违约类型(CANCEL/TIMEOUT/REJECT)
-		PenaltyReason     string         `db:"penalty_reason"`     // 违约原因
-		PenaltyAmount     float64        `db:"penalty_amount"`     // 违约金额
-		PenaltyStatus     string         `db:"penalty_status"`     // 违约状态(CALCULATED/SETTLED/WAIVED)
-		AppliedRules      sql.NullString `db:"applied_rules"`      // 应用的规则
-		CalculationDetail sql.NullString `db:"calculation_detail"` // 计算明细
-		PenaltyTime       time.Time      `db:"penalty_time"`       // 违约发生时间
-		CalculateTime     time.Time      `db:"calculate_time"`     // 计算时间
-		SettleTime        sql.NullTime   `db:"settle_time"`        // 结算时间
-		CreatedAt         time.Time      `db:"created_at"`         // 创建时间
-		UpdatedAt         time.Time      `db:"updated_at"`         // 更新时间
+		Id                uint64    `db:"id"`                 // 主键ID
+		PenaltyId         string    `db:"penalty_id"`         // 违约记录ID
+		OrderNo           string    `db:"order_no"`           // 订单号
+		PenaltyType       string    `db:"penalty_type"`       // 违约类型(CANCEL/TIMEOUT/REJECT)
+		PenaltyReason     string    `db:"penalty_reason"`     // 违约原因
+		PenaltyAmount     float64   `db:"penalty_amount"`     // 违约金额
+		PenaltyStatus     string    `db:"penalty_status"`     // 违约状态(CALCULATED/SETTLED/WAIVED)
+		AppliedRules      string    `db:"applied_rules"`      // 应用的规则 JSON
+		CalculationDetail string    `db:"calculation_detail"` // 计算明细 JSON
+		PenaltyTime       time.Time `db:"penalty_time"`       // 违约发生时间
+		CalculateTime     time.Time `db:"calculate_time"`     // 计算时间
+		SettleTime        time.Time `db:"settle_time"`        // 结算时间
+		CreatedAt         time.Time `db:"created_at"`         // 创建时间
+		UpdatedAt         time.Time `db:"updated_at"`         // 更新时间
 	}
 )
 

@@ -26,7 +26,7 @@ func (a *CHDAdapter) TransformToStandardOrder(data interface{}) (*events.Standar
 		jsonx.Unmarshal([]byte(req.ProductDetail), &productList)
 	}
 
-	orderId, err := snowflake.GenerateOrderNoWithPrefix(constants.PLATFORM_CHD)
+	orderNo, err := snowflake.GenerateOrderNoWithPrefix(constants.PLATFORM_CHD)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +36,9 @@ func (a *CHDAdapter) TransformToStandardOrder(data interface{}) (*events.Standar
 
 	return &events.StandardOrderCreateEvent{
 		// 基本信息
-		OrderId:         orderId,
+		OrderNo:         orderNo,
 		UpstreamOrderId: req.DeliveryId,
-		Platform:        constants.PLATFORM_CHD,
+		PlatformCode:    constants.PLATFORM_CHD,
 		OrderSource:     req.OrderSource,
 		OrderNum:        req.OrderNum,
 		CityName:        req.CityName,

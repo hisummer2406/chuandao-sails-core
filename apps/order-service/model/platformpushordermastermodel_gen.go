@@ -5,7 +5,6 @@
 package model
 
 import (
-	model2 "chuandao-sails-core/deploy/scripts/model"
 	"context"
 	"database/sql"
 	"fmt"
@@ -43,36 +42,36 @@ type (
 	}
 
 	PlatformPushOrderMaster struct {
-		Id              uint64         `db:"id"`                // 主键ID
-		OrderNo         string         `db:"order_no"`          // 系统内部订单号
-		UpstreamOrderId string         `db:"upstream_order_id"` // 上游平台订单号
-		PlatformCode    string         `db:"platform_code"`     // 平台标识：UU/SF/CHD
-		OrderSource     string         `db:"order_source"`      // 订单来源：MT/SG/EL/JDDJ等
-		OrderNum        string         `db:"order_num"`         // 订单流水号
-		CityName        string         `db:"city_name"`         // 城市名称
-		CountyName      string         `db:"county_name"`       // 县级地名称
-		AdCode          string         `db:"ad_code"`           // 城市编码（高德规范）
-		SendType        int64          `db:"send_type"`         // 订单小类：0帮我送 1帮我买 2帮我取
-		DeliveryType    string         `db:"delivery_type"`     // 配送类型：1团送 2专送
-		IsReverseOrder  int64          `db:"is_reverse_order"`  // 是否帮我取订单：1是 0否
-		PushType        int64          `db:"push_type"`         // 推送类型：0正常 1测试
-		FromAddress     sql.NullString `db:"from_address"`      // 发货地址信息
-		ToAddress       sql.NullString `db:"to_address"`        // 收货地址信息
-		OrderTime       sql.NullTime   `db:"order_time"`        // 订单时间
-		IsSubscribe     int64          `db:"is_subscribe"`      // 是否预约单：1是 0否
-		SubscribeType   int64          `db:"subscribe_type"`    // 预约类型：0实时 1预约取件 2预约送达
-		SubscribeTime   int64          `db:"subscribe_time"`    // 预约时间戳
-		GoodsInfo       sql.NullString `db:"goods_info"`        // 商品详情信息
-		PriceInfo       sql.NullString `db:"price_info"`        // 价格信息
-		DeliveryOptions sql.NullString `db:"delivery_options"`  // 配送选项
-		Note            sql.NullString `db:"note"`              // 备注信息
-		DisableDelivery string         `db:"disable_delivery"`  // 禁用配送方
-		Status          int64          `db:"status"`            // 状态：1待处理 2已转换 3处理失败
-		ErrorMsg        sql.NullString `db:"error_msg"`         // 错误信息
-		RetryCount      int64          `db:"retry_count"`       // 重试次数
-		CityCode        string         `db:"city_code"`         // 城市编码(二级分区 List Default Hash)
-		CreatedAt       time.Time      `db:"created_at"`        // 创建时间(一级分区 Interval_Range)
-		UpdatedAt       time.Time      `db:"updated_at"`        // 更新时间
+		Id              uint64    `db:"id"`                // 主键ID
+		OrderNo         string    `db:"order_no"`          // 系统内部订单号
+		UpstreamOrderId string    `db:"upstream_order_id"` // 上游平台订单号
+		PlatformCode    string    `db:"platform_code"`     // 平台标识：UU/SF/CHD
+		OrderSource     string    `db:"order_source"`      // 订单来源：MT/SG/EL/JDDJ等
+		OrderNum        string    `db:"order_num"`         // 订单流水号
+		CityName        string    `db:"city_name"`         // 城市名称
+		CountyName      string    `db:"county_name"`       // 县级地名称
+		AdCode          string    `db:"ad_code"`           // 城市编码（高德规范）
+		SendType        int64     `db:"send_type"`         // 订单小类：0帮我送 1帮我买 2帮我取
+		DeliveryType    string    `db:"delivery_type"`     // 配送类型：1团送 2专送
+		IsReverseOrder  int64     `db:"is_reverse_order"`  // 是否帮我取订单：1是 0否
+		PushType        int64     `db:"push_type"`         // 推送类型：0正常 1测试
+		FromAddress     string    `db:"from_address"`      // 发货地址信息 JSON
+		ToAddress       string    `db:"to_address"`        // 收货地址信息 JSON
+		OrderTime       string    `db:"order_time"`        // 订单时间
+		IsSubscribe     int64     `db:"is_subscribe"`      // 是否预约单：1是 0否
+		SubscribeType   int64     `db:"subscribe_type"`    // 预约类型：0实时 1预约取件 2预约送达
+		SubscribeTime   int64     `db:"subscribe_time"`    // 预约时间戳
+		GoodsInfo       string    `db:"goods_info"`        // 商品详情信息 JSON
+		PriceInfo       string    `db:"price_info"`        // 价格信息 JSON
+		DeliveryOptions string    `db:"delivery_options"`  // 配送选项 JSON
+		Note            string    `db:"note"`              // 备注信息
+		DisableDelivery string    `db:"disable_delivery"`  // 禁用配送方
+		Status          int64     `db:"status"`            // 状态：1待处理 2已转换 3处理失败
+		ErrorMsg        string    `db:"error_msg"`         // 错误信息
+		RetryCount      int64     `db:"retry_count"`       // 重试次数
+		CityCode        string    `db:"city_code"`         // 城市编码(二级分区 List Default Hash)
+		CreatedAt       time.Time `db:"created_at"`        // 创建时间(一级分区 Interval_Range)
+		UpdatedAt       time.Time `db:"updated_at"`        // 更新时间
 	}
 )
 
@@ -94,7 +93,7 @@ func (m *defaultPlatformPushOrderMasterModel) FindOne(ctx context.Context, id ui
 	case nil:
 		return &resp, nil
 	case sqlc.ErrNotFound:
-		return nil, model2.ErrNotFound
+		return nil, ErrNotFound
 	default:
 		return nil, err
 	}
@@ -114,7 +113,7 @@ func (m *defaultPlatformPushOrderMasterModel) FindOneByUpstreamOrderId(ctx conte
 	case nil:
 		return &resp, nil
 	case sqlc.ErrNotFound:
-		return nil, model2.ErrNotFound
+		return nil, ErrNotFound
 	default:
 		return nil, err
 	}

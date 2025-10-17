@@ -6,8 +6,9 @@ import "time"
 type StandardOrderCreateEvent struct {
 	// === 基本信息 ===
 	OrderId         string `json:"order_id"`          // 系统内部订单号
+	OrderNo         string `json:"order_"`            // 系统内部订单号
 	UpstreamOrderId string `json:"upstream_order_id"` // 上游平台订单号
-	Platform        string `json:"platform"`          // 平台标识：UU/SF/CHD
+	PlatformCode    string `json:"platform_code"`     // 平台标识：UU/SF/CHD
 	OrderSource     string `json:"order_source"`      // 订单来源
 	OrderNum        string `json:"order_num"`         // 订单流水号
 	CityName        string `json:"city_name"`         // 城市名称
@@ -15,10 +16,10 @@ type StandardOrderCreateEvent struct {
 	AdCode          string `json:"ad_code"`           // 城市编码（高德规范）
 
 	// === 订单类型 ===
-	SendType       int    `json:"send_type"`        // 订单小类：0帮我送 1帮我买 2帮我取 UU
+	SendType       int64  `json:"send_type"`        // 订单小类：0帮我送 1帮我买 2帮我取 UU
 	IsReverseOrder bool   `json:"is_reverse_order"` // 是否帮我取订单 SF
 	DeliveryType   string `json:"delivery_type"`    // 配送类型：1团送 2专送
-	PushType       int    `json:"push_type"`        // 推送类型：0正常 1测试 UU
+	PushType       int64  `json:"push_type"`        // 推送类型：0正常 1测试 UU
 
 	// === 地址信息 ===
 	FromAddress *AddressInfo `json:"from_address"` // 发货地址
@@ -27,7 +28,7 @@ type StandardOrderCreateEvent struct {
 	// === 时间信息 ===
 	OrderTime     string `json:"order_time"`     // 接收到订单的时间
 	IsSubscribe   bool   `json:"is_subscribe"`   // 是否预约单
-	SubscribeType int    `json:"subscribe_type"` // 预约类型：0实时 1预约取件 2预约送达
+	SubscribeType int64  `json:"subscribe_type"` // 预约类型：0实时 1预约取件 2预约送达
 	SubscribeTime int64  `json:"subscribe_time"` // 预约时间戳
 
 	// === 商品信息 ===
@@ -40,9 +41,9 @@ type StandardOrderCreateEvent struct {
 	DeliveryOptions *DeliveryOptions `json:"delivery_options"` // 配送选项
 
 	// === 附加信息 ===
-	Note                string `json:"note"`                  // 备注
-	DisableDelivery     string `json:"disable_delivery"`      // 禁用配送方
-	DisableDeliveryList []int  `json:"disable_delivery_list"` // 禁用配送方ID列表
+	Note                string  `json:"note"`                  // 备注
+	DisableDelivery     string  `json:"disable_delivery"`      // 禁用配送方
+	DisableDeliveryList []int64 `json:"disable_delivery_list"` // 禁用配送方ID列表
 
 	// === 系统字段 ===
 	CreatedAt time.Time `json:"created_at"` // 创建时间

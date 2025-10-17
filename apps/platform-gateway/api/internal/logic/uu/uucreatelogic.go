@@ -12,6 +12,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/trace"
 	"net/http"
 	"regexp"
 	"strings"
@@ -33,26 +34,33 @@ func NewUuCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UuCreate
 }
 
 func (l *UuCreateLogic) UuCreate(req *types.UUCreateOrderRequest) (resp *types.EmptyType, err error) {
+	traceID := trace.TraceIDFromContext(l.ctx)
+	l.Infof("[TraceID: %s] Received UU order push, deliveryId: %s", traceID, req.DeliveryId)
 
-	//数据格式标准化
+	//1. 数据格式标准化
 	factory := &adapter.AdapterFactory{}
 	uuAdapter := factory.GetAdapter(constants.PLATFORM_UU)
-	//转换为标准订单事件
+
+	//2. 转换为标准订单事件
 	standardOrder, err := uuAdapter.TransformToStandardOrder(req)
 	if err != nil {
-		return nil, response.NewBusinessErrorWithCtx(l.ctx, http.StatusBadRequest, fmt.Sprintf("UuCreate transfer error : %s", err.Error()))
+		l.Errorf("[TraceID: %s] UUCreateAPI Transform order failed: %v", traceID, err)
+		return nil, response.NewBusinessErrorWithCtx(l.ctx, http.StatusBadRequest, fmt.Sprintf("UuCreate transfer failed : %s", err.Error()))
 	}
 
-	//数据校验和优化
+	//3. 数据校验和优化
 	l.validateRequest(standardOrder, req)
 
-	// TODO: 发送订单事件到消息队列
-	// 这里应该发送到 order-create-topic，由订单服务接收处理
-	// err = l.svcCtx.OrderProducer.SendOrderCreateEvent(standardOrder)
-	// if err != nil {
-	//     l.Logger.Errorf("发送订单创建事件失败: %v", err)
-	//     return nil, response.NewInternalServerErrorWithCtx(l.ctx, "订单创建失败")
-	// }
+	//4. 构建订单推送事件
+	orderPushEvent := events.NewOrderPushEvent(standardOrder, traceID)
+	l.Infof("[TraceID: %s] UUCreateAPI Created order push event, eventId: %s, upstreamOrderId: %s, platform: %s", traceID, orderPushEvent.EventID, standardOrder.UpstreamOrderId, standardOrder.PlatformCode)
+
+	//5. 发送到RocketMQ
+	if err := l.svcCtx.MQClient.Send(l.ctx, orderPushEvent); err != nil {
+		l.Errorf("[TraceID: %s] UUCreateAPI Send order to MQ failed: %v", traceID, err)
+		return nil, response.NewBusinessErrorWithCtx(l.ctx, http.StatusBadRequest, fmt.Sprintf("UUCreateAPI Send order to MQ failed : %s", err.Error()))
+	}
+	l.Infof("[TraceID: %s] UUCreateAPI Order push event sent successfully, topic: %s, tag: %s, keys: %v", traceID, orderPushEvent.GetTopic(), orderPushEvent.GetTag(), orderPushEvent.GetKeys())
 
 	return &types.EmptyType{}, nil
 }

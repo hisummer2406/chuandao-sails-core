@@ -1,6 +1,7 @@
 package event
 
 import (
+	"chuandao-sails-core/common/events"
 	"github.com/google/uuid"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"time"
@@ -10,14 +11,9 @@ import (
 var topic string = "order-create-topic"
 
 type OrderEventMessage struct {
-	EventID   string                 `json:"event_id"`
-	EventType string                 `json:"event_type"`
-	OrderID   string                 `json:"order_id"`
-	OrderNo   string                 `json:"order_no"`
-	Source    string                 `json:"source"`
-	Timestamp time.Time              `json:"timestamp"`
-	Data      interface{}            `json:"data"`
-	Metadata  map[string]interface{} `json:"metadata"`
+	events.BaseEvent
+	Data     interface{}            `json:"data"`
+	Metadata map[string]interface{} `json:"metadata"`
 }
 
 func (o *OrderEventMessage) GetTopic() string {

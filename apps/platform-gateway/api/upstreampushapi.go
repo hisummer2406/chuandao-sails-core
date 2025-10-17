@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"chuandao-sails-core/apps/platform-gateway/api/internal/config"
 	"chuandao-sails-core/apps/platform-gateway/api/internal/handler"
@@ -41,6 +43,20 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 
-	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
-	server.Start()
+	//优雅关闭
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+		server.Start()
+	}()
+
+	<-quit
+	fmt.Println("Shutting down platform gateway...")
+
+	//关闭RocketMQ
+	if err := ctx.MQClient.Close(); err != nil {
+		logx.Errorf("Failed to close MQ client: %v", err)
+	}
+	fmt.Println("platform gateway exited")
 }

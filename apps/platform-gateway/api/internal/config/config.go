@@ -1,6 +1,7 @@
 package config
 
 import (
+	"chuandao-sails-core/common/rocketmq"
 	"chuandao-sails-core/common/sls"
 	"chuandao-sails-core/common/snowflake"
 	"github.com/zeromicro/go-zero/core/stores/cache"
@@ -13,4 +14,5 @@ type Config struct {
 	SLS        sls.Config
 	Redis      cache.CacheConf
 	Snowflake  snowflake.Config
+	RocketMQ   rocketmq.Config
 }

@@ -152,3 +152,26 @@ delivery-dispatch-service/
 数据表：
     - UU storeId: 84243 ，写死的openid: 9f58f2a142824f3186ffde6d2eb6561a
     - 平台调度运力配置：config_user_store
+
+## 5.队列设计
+```yaml
+负责范围:
+  ✅ 配送平台管理（适配器模式）
+  ✅ 智能询价（并发调用多平台）
+  ✅ 发单策略执行
+  ✅ 配送跟踪（轮询/webhook）
+  ✅ 订单操作执行（取消/加小费）
+  ✅ 违约金获取（调用下游平台）
+  
+消费MQ:
+  - order-event-topic (order.created → 触发询价发单)
+  - upstream-operation-topic (处理取消/加小费操作)
+  
+调用下游API:
+  - UU询价/发单/取消/加小费
+  - 顺丰询价/发单/取消
+  - 闪送询价/发单/取消
+  
+发布事件:
+  - delivery-event-topic (配送状态变更)
+```

@@ -240,6 +240,22 @@ MQ接收订单消息 → 数据验证 → 生成订单号 → 写入数据库 �
 
 
 ## 5. 消息队列设计
+```yaml
+负责范围:
+✅ 订单状态机管理
+✅ 订单数据持久化
+✅ 违约金计算（业务规则）
+✅ 订单查询服务
+
+接收消息:
+- upstream-push-topic (上游推单)
+- delivery-event-topic (配送状态变更)
+
+发布消息:
+- order-event-topic (订单生命周期事件)
+```
+
+
 ### Topic设计（4个Topic）
 
 1. upstream-push-topic (上游推单专用) 🔥 核心
