@@ -1,0 +1,11 @@
+syntax = "v1"
+
+info(
+    title: "type title here"
+    author: "type author here"
+    doc: "https://open.ishansong.com/documentCenter/318"
+)
+
+type (
+
+)

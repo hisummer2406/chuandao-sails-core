@@ -1,0 +1,37 @@
+syntax = "v1"
+
+info(
+    title: "UU订单状态回调"
+    author: "zhangyu"
+    doc: "https://open.uupt.com/#/development/apiDoc/orderInterfaceList/callback?businessGroup=1&t=%E8%AE%A2%E5%8D%95%E7%8A%B6%E6%80%81%E5%9B%9E%E8%B0%83&index=3-2-11"
+)
+
+type (
+    UUCallbackReq {
+        OrderCode string `json:"orderCode,optional"`      // UU跑腿订单编号
+        OriginId string `json:"originId,optional"`        // 第三方对接平台订单id
+        State string `json:"state"`                       // 回调状态
+        StateText string `json:"stateText"`               // 当前状态说明
+        DriverName string `json:"driverName"`             // 跑男姓名(跑男接单后)
+        DriverMobile string `json:"driverMobile"`         // 跑男电话(跑男接单后)
+        DriverPhoto string `json:"driverPhoto"`           // 跑男头像(跑男接单后)
+        ChangeTime string `json:"changeTime"`             // 状态变更时间戳（毫秒）
+    }
+
+    //1下单成功 2跑男取消（订单状态回退到1） 3跑男抢单 4已到达 5已取件 6到达目的地 10收件人已收货 -1订单取消 -2客服取消（订单状态-1） -3超时无人接单取消（订单状态-1）
+
+    UUCallbackResp {
+
+    }
+)
+
+@server(
+    prefix: /callback/uu
+    group: uu
+)
+
+service callback-api {
+    @doc "订单状态回调，用户提交订单时传入"
+    @handler uuCallback
+    post /state (UUCallbackReq) returns (UUCallbackResp)
+}

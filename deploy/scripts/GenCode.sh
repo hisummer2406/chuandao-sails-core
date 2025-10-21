@@ -1,5 +1,5 @@
 # 生成API代码
-goctl api go -api route.api -dir ../ --style=gozero --home $GOPATH/src/chuandao-sails-core/deploy/goctl/1.8.5
+goctl api go -api delivery-callback.api -dir ../ --style=gozero --home $GOPATH/src/chuandao-sails-core/deploy/goctl/v1.8.5
 
 # 生成RPC代码
 # -m 分组

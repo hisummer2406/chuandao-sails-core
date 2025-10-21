@@ -1,0 +1,22 @@
+syntax = "v1"
+
+info (
+	title:   "配送平台回调服务"
+	desc:    "接收各配送平台的状态回调通知，统一格式化后发送MQ异步处理"
+	author:  "zhangyu"
+	version: "v1.0"
+)
+
+import (
+	"uu/uu.api"
+	"dd/dd.api"
+)
+
+type EmptyType {}
+
+//健康检查
+service callback-api {
+	@handler health
+	get /health returns (EmptyType)
+}
+

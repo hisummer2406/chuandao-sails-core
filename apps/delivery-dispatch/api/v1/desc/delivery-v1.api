@@ -1,0 +1,198 @@
+syntax = "v1"
+
+info (
+	title:   "配送调度服务V1 - 基础发单"
+	desc:    "聚合16个配送平台的统一调度API服务，提供基础的配送平台发单、取消、查询功能"
+	author:  "zhangyu"
+	version: "v1.0.0"
+)
+
+type EmptyType {}
+
+//健康检查
+service delivery-api {
+	@handler health
+	get /health returns (EmptyType)
+}
+
+//公共参数
+type SignType {
+	AppId     string `json:"appId"`
+	Timestamp string `json:"timestamp"`
+	Data      string `json:"data"`
+	Sign      string `json:"sign"`
+}
+
+type (
+	// ============ 询价相关 ============
+	PriceQuotaReq {
+		SignType
+		OrderNO         string  `json:"order_no"` //内部单号
+		FromAddress     Address `json:"from_address"` //发货地址
+		ToAddress       Address `json:"to_address"` // 收货地址
+		LbsType         int     `json:"lbs_type"` //坐标系类型
+		GoodsType       int     `json:"goods_type"` // 物品类型
+		GoodsWeight     int     `json:"goods_weight"` // 物品重量
+		IsSubscribe     int     `json:"is_subscribe"` //预约类型 0 立即 1 预约
+		SubscribeType   int     `json:"subscribe_type"` // 预约类型：0实时 1预约取件 2预约送达
+		SubscribeTime   int     `json:"subscribe_time"` // 预约时间戳
+		DisableDelivery string  `json:"disable_delivery"` //禁用运力 1,2,3
+	}
+	PriceQuotaResp {
+		OrderNO   string          `json:"order_no"`
+		QuotaList []PlatformQuota `json:"quota_list"` //各平台报价
+	}
+	//TODO 内部处理价格有效期
+	PlatformQuota {
+		Platform
+		Price     int    `json:"price"` // 配送费 分
+		Distance  int    `json:"distance"` // 距离 米
+		Available int    `json:"available"` // 是否可接单
+		Reason    string `json:"reason"` // 不可用原因
+	}
+	// ============ 发单相关 ============
+	DispatchOrderReq {
+		SignType
+		OrderNO      string `json:"order_no"`
+		PlatformCode string `json:"platform_code"` // 指定平台
+		CallbackUrl  string `json:"callback_url",optional` //状态回调地址
+	}
+	DispatchOrderResp {
+		OrderNo      string             `json:"order_no"`
+		DispatchList []PlatformDispatch `json:"dispatch_list"`
+	}
+	PlatformDispatch {
+		Platform
+		DeliveryOrderNo string `json:"delivery_order_no"` //配送平台单号
+	}
+	// ============ 发单相关 ============
+	AddTipReq {
+		SignType
+		OrderNo   string `json:"order_no"` // 订单号
+		TipAmount int    `json:"tip_amount"` // 小费金额 分
+	}
+	AddTipResp {
+		OrderNo    string           `json:"order_no"`
+		AddTipList []PlatformAddTip `json:"add_tip_list"`
+	}
+	PlatformAddTip {
+		Platform
+		Return
+	}
+	// ============ 查询违约金 ============
+	CancelOrderReq {
+		SignType
+		OrderNo string `json:"order_no"`
+	}
+	QueryPenaltyResp {
+		OrderNo     string            `json:"order_no"`
+		PenaltyList []PlatformPenalty `json:"penalty_list"`
+	}
+	PlatformPenalty {
+		Platform
+		Return
+		PenaltyFee int `json:"penalty_fee"` //违约金
+	}
+	// ============ 取消订单 ============
+	CancelOrderResp {
+		OrderNO         string                `json:"order_no"`
+		CancelOrderList []PlatformCancelOrder `json:"cancel_order_list"`
+	}
+	PlatformCancelOrder {
+		Platform
+		PenaltyFee int `json:"penalty_fee"` //违约金
+	}
+	// ============ 查询订单详情 ============
+	QueryOrderReq {
+		SignType
+		OrderNO string `path:"order_no"`
+	}
+	QueryOrderResp {
+		Platform
+		OrderNO         string      `json:"order_no"`
+		DeliveryOrderNo string      `json:"delivery_order_no"` //配送订单号
+		Status          string      `json:"status"` // 订单状态
+		Note            string      `json:"note"` // 订单备注
+		DriverInfo      *DriverInfo `json:"driver_info,optional"` //骑手信息
+		FeeInfo         *FeeInfo    `json:"fee_info"`
+		TimeLine        []TimeLine  `json:"time_line"` //时间线信息
+		FromAddress     Address     `json:"from_address"`
+		ToAddress       Address     `json:"to_address"`
+	}
+	// ============ 查询订单详情 ============
+	DrickerTrackResp {
+		SignType
+		Platform
+		OrderNO         string      `json:"order_no"`
+		DeliveryOrderNo string      `json:"delivery_order_no"`
+		DriverInfo      *DriverInfo `json:"driver_info,optional"`
+	}
+	// ============ 公共结构体 ============
+	Platform {
+		PlatformCode string `json:"platform_code"`
+		PlatformName string `json:"platform_name"`
+	}
+	Return {
+		Success string `json:"success"` //平台状态
+		Message string `json:"message",optional` //平台返回信息
+	}
+	Address {
+		Lng    string `json:"lng"`
+		lat    string `json:"lat"`
+		Detail string `json:"detail"`
+		Name   string `json:"name"`
+		Phone  string `json:"phone"`
+	}
+	DriverInfo {
+		Name    string  `json:"name"`
+		Mobile  string  `json:"mobile"`
+		LastLng float64 `json:"last_lng"`
+		LastLat float64 `json:"last_lat"`
+	}
+	FeeInfo {
+		QueryPrice  int     `json:"query_price"` //询价报价 分
+		ActualPrice int     `json:"actual_price"` //实际发单价格
+		TipAmount   int     `json:"tip_amount"` //小费
+		PenaltyFee  float64 `json:"penalty_fee"` //违约金
+		TotalFee    int     `json:"total_fee"` //总计
+	}
+	TimeLine {
+		Time       int64  `json:"time"`
+		StatusNode string `json:"status_node"` //发单/预计到达/达到/完成 时间
+	}
+)
+
+@server (
+	prefix:     /api/v1/delivery
+	middleware: Sign
+)
+service delivery-api {
+	@doc "查询运费"
+	@handler priceQuote
+	post /quote (PriceQuotaReq) returns (PriceQuotaResp)
+
+	@doc "查询运费后下单"
+	@handler dispatchOrder
+	post /dispatch (DispatchOrderReq) returns (DispatchOrderResp)
+
+	@doc "加小费"
+	@handler addTip
+	post /tip (AddTipReq) returns (AddTipResp)
+
+	@doc "查询取消订单费用"
+	@handler queryPenalty
+	post /cancelFee (CancelOrderReq) returns (QueryPenaltyResp)
+
+	@doc "取消订单"
+	@handler cancelOrder
+	post /cancel (CancelOrderReq) returns (CancelOrderResp)
+
+	@doc "查询订单详情"
+	@handler queryOrder
+	get /order/:order_no (QueryOrderReq) returns (QueryOrderResp)
+
+	@doc "查看跑男位置"
+	@handler drickerTrack
+	get /dricker/:order_no (QueryOrderReq) returns (DrickerTrackResp)
+}
+
