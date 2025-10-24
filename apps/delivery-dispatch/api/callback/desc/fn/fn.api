@@ -1,0 +1,57 @@
+syntax = "v1"
+
+info(
+    title: "蜂鸟，回调接口"
+    author: "zhangyu"
+    doc: "https://open.ele.me/documents/openApi/771"
+)
+
+type (
+    FNCallbackReq {
+        AppID string `json:"app_id"`               // 应用ID，见官网应用管理
+        Timestamp string `json:"timestamp"`        // 时间戳，单位毫秒
+        Signature string `json:"signature"`        // 签名，见签名算法
+        BusinessData string `json:"business_data"` // 业务参数JSON字符串
+    }
+
+        // 业务参数
+    BusinessData {
+        CallbackBusinessType string `json:"callback_business_type"` // 回调业务类型
+        Param string `json:"param"`                                 // 回调参数JSON字符串
+    }
+
+        //回调参数
+    OrderStatusParam {
+        AppID string `json:"app_id"`
+        OrderID int64 `json:"order_id"`
+        PartnerOrderCode string `json:"partner_order_code"`
+        OrderStatus int `json:"order_status"`                 // 0:订单生成,1:系统已接单,20:骑手接单,80:骑手到店,2:配送中,3:已完成,4:已取消,5:配送异常
+        CarrierDriverID int64 `json:"carrier_driver_id,optional"`
+        CarrierDriverName string `json:"carrier_driver_name,optional"`
+        CarrierDriverPhone string `json:"carrier_driver_phone,optional"`
+        Description string `json:"description,optional"`
+        ErrorCode string `json:"error_code,optional"`
+        ErrorScene string `json:"error_scene,optional"`
+        DetailDescription string `json:"detail_description,optional"`
+        PushTime int64 `json:"push_time"`                     // 状态推送时间（毫秒）
+        Transfer int `json:"transfer,optional"`               // 转单标识 1是转单 0非转单
+        APICode string `json:"apiCode,optional"`
+        APIMsg string `json:"apiMsg,optional"`
+        CompletePics []string `json:"complete_pics,optional"` // 送达照片URL列表
+    }
+
+
+    FNCallbackResp{
+    }
+)
+
+@server(
+    prefix: /callback/fn
+    group: fn
+)
+
+service callback-api {
+    @doc "订单状态回调，新增订单接口callback传入的URL"
+    @handler ddCallback
+    post /ddReceiveMsg (FNCallbackReq) returns (FNCallbackResp)
+}

@@ -1,4 +1,4 @@
-package logic
+package sf
 
 import (
 	"context"
@@ -9,21 +9,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type HealthLogic struct {
+type SfCancelCallbackLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewHealthLogic(ctx context.Context, svcCtx *svc.ServiceContext) *HealthLogic {
-	return &HealthLogic{
+// 顺丰原因订单取消回调
+func NewSfCancelCallbackLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SfCancelCallbackLogic {
+	return &SfCancelCallbackLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *HealthLogic) Health() (resp *types.EmptyType, err error) {
+func (l *SfCancelCallbackLogic) SfCancelCallback(req *types.SFCancelCallbackReq) (resp *types.SFResp, err error) {
 	// todo: add your logic here and delete this line
 
 	return

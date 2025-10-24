@@ -1,0 +1,66 @@
+syntax = "v1"
+
+info(
+    title: "闪送，订单状态回调"
+    author: "zhangyu"
+    doc: "https://open.ishansong.com/documentCenter/318"
+)
+
+type (
+    SSCallbackReq {
+        IssOrderNo string `json:"issOrderNo"`                      // 闪送订单号，TDH2021101514763986
+        OrderNo string `json:"orderNo"`                            // 第三方平台流水号，C1119A000013053981
+        Status int `json:"status"`                                 // 订单状态，参考订单状态枚举，20
+        StatusDesc string `json:"statusDesc"`                      // 订单状态描述，参考订单状态枚举，派单中
+        SubStatus int `json:"subStatus,optional"`                  // 订单子状态，参考订单状态枚举，1
+        SubStatusDesc string `json:"subStatusDesc,optional"`       // 订单子状态描述，参考订单状态枚举，派单中
+        PickupPassword string `json:"pickupPassword,optional"`     // 取件密码，计费接口中pickupPwd传1时生成
+        DeliveryPassword string `json:"deliveryPassword,optional"` // 收件密码，骑手取件后生成
+        DeductAmount int `json:"deductAmount,optional"`            // 扣款金额，单位：分，0
+        AbortType int `json:"abortType,optional"`                  // 取消发起人，详见枚举，1
+        PunishType int `json:"punishType,optional"`                // 取消责任人，详见枚举，1
+        AbortReason string `json:"abortReason,optional"`           // 取消原因，客户主动取消订单
+        Courier *Courier `json:"courier,optional"`                 // 闪送员信息
+        SendBackFee int `json:"sendBackFee"`                       // 送回费，单位：分，0
+        Drawback int `json:"drawback"`                             // 退款金额，单位：分，0
+    }
+
+    Courier{
+        Latitude                 string               `json:"latitude,optional"`                 // 闪送员位置纬度（百度坐标系），40.055091
+        Longitude                string               `json:"longitude,optional"`                // 闪送员位置经度（百度坐标系），116.289263
+        Name                     string               `json:"name"`                     // 闪送员姓名，韩师傅
+        Mobile                   string               `json:"mobile"`                   // 闪送员手机号，19000000000
+        Time                     string               `json:"time"`                     // 闪送员位置所处的当前时间，2021-10-15 14:11:44
+        Type                     int                 `json:"type,optional"`                     // 字段弃用，可忽略，1
+        OrderCount               int                 `json:"orderCount,optional"`               // 闪送员服务总次数，4
+        HeadIcon                 string              `json:"headIcon,optional"`                 // 闪送员头像
+        ID                       string              `json:"id,optional"`                       // 骑手id，SSBJ000000001
+        Blacklisted              int                 `json:"blacklisted,optional"`              // 字段弃用，可忽略，0
+        DeliveryProcessTrail     []DeliveryProcessTrail `json:"deliveryProcessTrail,optional"`     // 配送过程轨迹列表
+        EstimateDeliveryTimeTip  string              `json:"estimateDeliveryTimeTip,optional"`  // 预计送达时间文案，227米,预计1分钟上门
+    }
+
+    DeliveryProcessTrail{
+        Longitude string `json:"longitude"` // 闪送员位置经度（百度坐标系），116.289263
+        Latitude  string `json:"latitude"`  // 闪送员位置纬度（百度坐标系），40.055091
+        Datetime  string `json:"datetime"`  // 闪送员位置所处的当前时间，2021-10-14 13:30:31
+
+    }
+
+    SSCallbackResp {
+        Status int `json:"status"`       // 状态码，必须为200表示回调成功
+        Msg string `json:"msg"`          // 消息，成功时可为空
+        Data interface{} `json:"data"`   // 数据，成功时为null
+    }
+)
+
+@server(
+    prefix: /callback/ss
+    group: ss
+)
+
+service callback-api {
+    @doc "订单状态回调，回调账号配置的地址（账户中心->应用中心->回调URL：NotifyUrl）来通知订单状态的变化。"
+    @handler ddCallback
+    post /ssReceiveMsg (SSCallbackReq) returns (SSCallbackResp)
+}

@@ -1,0 +1,25 @@
+CREATE TABLE `dispatch_order_status_log`
+(
+    `id`                bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `delivery_no`       varchar(64) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '配送单号',
+    `external_order_no` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '外部订单号',
+    `platform_code`     varchar(32) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '配送平台代码',
+    `platform_order_no` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '平台订单号',
+    `old_status`        varchar(32) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '原状态',
+    `new_status`        varchar(32) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '新状态',
+    `status_desc`       varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '状态描述',
+    `operator`          varchar(64) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '操作人',
+    `operator_type`     varchar(32) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '操作类型：SYSTEM/PLATFORM/USER/API',
+    `operation_source`  varchar(32) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '操作来源：CALLBACK/POLLING/MANUAL/AUTO',
+    `change_reason`     varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '变更原因',
+    `extra_data`        json                                    NOT NULL DEFAULT '{}' COMMENT '扩展数据',
+    `city_code`         varchar(20) COLLATE utf8mb4_unicode_ci  NOT NULL DEFAULT '' COMMENT '城市编码',
+    `created_at`        datetime                                NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY                 `idx_delivery_no` (`delivery_no`, `created_at`),
+    KEY                 `idx_external_order` (`external_order_no`),
+    KEY                 `idx_new_status` (`new_status`),
+    KEY                 `idx_operator_type` (`operator_type`),
+    KEY                 `idx_city_created` (`city_code`, `created_at`),
+    KEY                 `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单状态流转记录表';

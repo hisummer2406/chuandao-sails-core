@@ -1,4 +1,4 @@
-package logic
+package fn
 
 import (
 	"context"
@@ -9,21 +9,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type HealthLogic struct {
+type DdCallbackLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewHealthLogic(ctx context.Context, svcCtx *svc.ServiceContext) *HealthLogic {
-	return &HealthLogic{
+// 订单状态回调，新增订单接口callback传入的URL
+func NewDdCallbackLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DdCallbackLogic {
+	return &DdCallbackLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *HealthLogic) Health() (resp *types.EmptyType, err error) {
+func (l *DdCallbackLogic) DdCallback(req *types.FNCallbackReq) (resp *types.FNCallbackResp, err error) {
 	// todo: add your logic here and delete this line
 
 	return

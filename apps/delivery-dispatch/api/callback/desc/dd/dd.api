@@ -1,11 +1,42 @@
 syntax = "v1"
 
 info(
-    title: "type title here"
-    author: "type author here"
-    doc: "https://open.ishansong.com/documentCenter/318"
+    title: "达达，订单状态回调"
+    author: "zhangyu"
+    doc: "https://newopen.imdada.cn/#/development/file/order"
 )
 
 type (
+    //TODO *int omitempty
+    DDCallbackReq {
+        Signature string `json:"signature"`                         // 签名，对client_id, order_id, update_time的值进行字符串升序排列，再连接字符串，取md5值
+        ClientID string `json:"client_id"`                          // 达达物流订单号
+        OrderID string `json:"order_id"`                            // 第三方订单ID，对应下单接口中的origin_id
+        OrderStatus int `json:"order_status"`                       // 订单状态
+        RepeatReasonType int `json:"repeat_reason_type,optional"`   // 重复回传状态原因(1-重新分配骑士，2-骑士转单)，可选
+        CancelReason string `json:"cancel_reason"`                  // 订单取消原因，其他状态下默认值为空字符串
+        CancelFrom int `json:"cancel_from"`                         // 订单取消原因来源(1:达达配送员取消；2:商家主动取消；3:系统或客服取消；0:默认值)
+        UpdateTime int64 `json:"update_time"`                       // 更新时间，时间戳（创建达达运单失败=1000的精确毫秒，其他时间戳精确到秒）
+        DmID int `json:"dm_id,optional"`                          // 达达配送员id，接单以后会传，可选
+        DmName string `json:"dm_name,optional"`                   // 配送员姓名，接单以后会传，可选
+        DmMobile string `json:"dm_mobile,optional"`               // 配送员手机号，接单以后会传，可选
+        FinishCode string `json:"finish_code,optional"`           // 收货码，可选
+    }
 
+        // OrderStatus (待接单=1,待取货=2,骑士到店=100,配送中=3,已完成=4,已取消=5,已追加待接单=8,妥投异常之物品返回中=9,妥投异常之物品返回完成=10,售后取件单送达门店=6,创建达达运单失败=1000)
+
+    DDCallbackResp {
+
+    }
 )
+
+@server(
+    prefix: /callback/dd
+    group: dd
+)
+
+service callback-api {
+    @doc "订单状态回调，新增订单接口callback传入的URL"
+    @handler ddCallback
+    post /ddReceiveMsg (DDCallbackReq) returns (DDCallbackResp)
+}

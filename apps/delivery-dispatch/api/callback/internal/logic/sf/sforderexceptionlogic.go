@@ -1,4 +1,4 @@
-package logic
+package sf
 
 import (
 	"context"
@@ -9,22 +9,23 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type HealthLogic struct {
+type SfOrderExceptionLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewHealthLogic(ctx context.Context, svcCtx *svc.ServiceContext) *HealthLogic {
-	return &HealthLogic{
+// 订单配送异常
+func NewSfOrderExceptionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SfOrderExceptionLogic {
+	return &SfOrderExceptionLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *HealthLogic) Health() (resp *types.EmptyType, err error) {
+func (l *SfOrderExceptionLogic) SfOrderException(req *types.SFOrderExceptionReq) error {
 	// todo: add your logic here and delete this line
 
-	return
+	return nil
 }

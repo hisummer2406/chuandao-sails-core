@@ -1,0 +1,118 @@
+syntax = "v1"
+
+info(
+    title: "顺丰，"
+    author: "zhangyu"
+    doc: "https://openic.sf-express.com/#/apidoc"
+)
+
+type (
+    SFOrderStatusReq {
+        ShopId string `json:"shop_id"`                // 店铺ID（必填）
+        SfOrderId string `json:"sf_order_id"`         // 顺丰订单ID（必填）
+        ShopOrderId string `json:"shop_order_id"`     // 商家订单ID（必填）
+        UrlIndex string `json:"url_index"`            // 回调url前缀（必填）
+        OperatorName string `json:"operator_name"`    // 配送员姓名（必填）
+        OperatorPhone string `json:"operator_phone"`  // 配送员电话（必填）
+        RiderLng string `json:"rider_lng"`            // 配送员位置经度（必填）
+        RiderLat string `json:"rider_lat"`            // 配送员位置纬度（必填）
+        OrderStatus int `json:"order_status"`         // 订单状态（必填）10=接单/改派,12=到店,15=配送中
+        StatusDesc string `json:"status_desc"`        // 状态描述（必填）
+        PushTime int `json:"push_time"`               // 状态变更时间（必填）
+    }
+
+    SFRiderRecallReq {
+        ShopId string `json:"shop_id"`            // 店铺ID（必填）
+        SfOrderId string `json:"sf_order_id"`     // 顺丰订单ID（必填）
+        ShopOrderId string `json:"shop_order_id"` // 商家订单ID（必填）
+        UrlIndex string `json:"url_index"`        // 回调url前缀（必填）
+        OrderStatus int `json:"order_status"`     // 订单状态（必填）22=配送员撤单
+        StatusDesc string `json:"status_desc"`    // 状态描述（必填）
+        PushTime int64 `json:"push_time"`         // 骑士撤单时间，秒级时间戳（必填）
+    }
+
+    SFCancelCallbackReq {
+        ShopId        string `json:"shop_id"`         // 店铺ID（必填）
+        SfOrderId     string `json:"sf_order_id"`     // 顺丰订单ID（必填）
+        ShopOrderId   string `json:"shop_order_id"`   // 商家订单ID（必填）
+        UrlIndex      string `json:"url_index"`       // 回调url前缀（必填）
+        OperatorName  string `json:"operator_name"`   // 操作人（必填）
+        OperatorPhone string `json:"operator_phone"`  // 操作人手机号（必填）
+        OrderStatus   int    `json:"order_status"`    // 订单状态（必填）2=订单取消
+        StatusDesc    string `json:"status_desc"`     // 状态描述（必填）
+        CancelReason  string `json:"cancel_reason"`   // 取消原因（必填）
+        CancelCode    string `json:"cancel_code"`     // 取消码（必填）
+        RiderLng      string `json:"rider_lng"`       // 配送员位置经度（必填）
+        RiderLat      string `json:"rider_lat"`       // 配送员位置纬度（必填）
+        PushTime      int    `json:"push_time"`       // 取消时间（必填）
+    }
+
+    SFOrderExceptionReq {
+        ShopId        string `json:"shop_id"`         // 店铺ID（必填）
+        SfOrderId     string `json:"sf_order_id"`     // 顺丰订单号码（必填）
+        ShopOrderId   string `json:"shop_order_id"`   // 商家订单号码（必填）
+        UrlIndex      string `json:"url_index"`       // 回调url前缀（必填）
+        OperatorName  string `json:"operator_name"`   // 配送员姓名（必填）
+        OperatorPhone string `json:"operator_phone"`  // 配送员电话（必填）
+        OrderStatus   int    `json:"order_status"`    // 订单状态（必填）固定为91
+        StatusDesc    string `json:"status_desc"`     // 状态描述（必填）骑士上报异常
+        ExId          int    `json:"ex_id"`           // 异常ID（必填）
+        ExContent     string `json:"ex_content"`      // 异常详情（必填）
+        ExpectTime    string `json:"expect_time,optional"` // 新的预计送达时间（可选）
+        PushTime      int    `json:"push_time"`       // 顺丰推送时间（必填）
+    }
+
+    SFOrderCompleteReq {
+        ShopId        string   `json:"shop_id"`                  // 店铺ID（必填）
+        SfOrderId     string   `json:"sf_order_id"`              // 顺丰订单ID（必填）
+        ShopOrderId   string   `json:"shop_order_id"`            // 商家订单ID（必填）
+        UrlIndex      string   `json:"url_index"`                // 回调url前缀（必填）
+        OperatorName  string   `json:"operator_name"`            // 操作人（必填）
+        RiderLng      string   `json:"rider_lng,optional"`       // 配送员位置经度（可选）
+        RiderLat      string   `json:"rider_lat,optional"`       // 配送员位置纬度（可选）
+        OrderStatus   int      `json:"order_status"`             // 订单状态（必填）17=配送员点击完成
+        StatusDesc    string   `json:"status_desc"`              // 状态描述（必填）
+        PickupPic     []string `json:"pickup_pic,optional"`      // 取货照片url数组（可选）
+        CompletePic   []string `json:"complete_pic,optional"`    // 妥投照片url数组（可选）
+        PushTime      int      `json:"push_time"`                // 完成时间（必填）
+        ReceiptType   int      `json:"receipt_type"`             // 签收类型（必填）1=正常签收,2=商家退回签收
+    }
+
+
+    SFResp {
+        ErrorCode int `json:"error_code"`   // 错误码，0表示成功
+        ErrorMsg string `json:"error_msg"`  // 错误信息
+    }
+)
+
+@server(
+    prefix: /callback/sf
+    group: sf
+)
+
+service callback-api {
+    @doc "配送状态更改回调"
+    @handler sfOrderStatus
+    post /orderStatus/:sign (SFOrderStatusReq) returns (SFResp)
+
+    @doc "订单完成回调"
+    @handler sfOrderComplete
+    post /orderComplete/:sign (SFOrderCompleteReq) returns (SFResp)
+
+    @doc "顺丰原因订单取消回调"
+    @handler sfCancelCallback
+    post /cancelCallback/:sign (SFCancelCallbackReq) returns (SFResp)
+
+    @doc "订单配送异常"
+    @handler sfOrderException
+    post /orderException/:sign (SFOrderExceptionReq) returns ()
+
+    @doc "骑士撤单状态回调"
+    @handler sfRiderRecall
+    post /riderRecall/:sign (SFRiderRecallReq) returns (SFResp)
+
+    @doc "自动建店回调"
+    @handler sfAutoCreateShop
+    post /autoCreateShop () returns ()
+}
+

@@ -5,7 +5,7 @@ templateHome=../goctl/v1.8.5
 echo "开始根据sql文件生成"
 
 goctl model mysql ddl \
-  -src ./sql/order_status_log.sql \
+  -src ./sql/delivery/track_platform_callback_log.sql \
   -dir ./model \
   -c \
   --home="${templateHome}"

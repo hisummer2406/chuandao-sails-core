@@ -3,7 +3,180 @@
 
 package types
 
+type BusinessData struct {
+	CallbackBusinessType string `json:"callback_business_type"` // 回调业务类型
+	Param                string `json:"param"`                  // 回调参数JSON字符串
+}
+
+type Courier struct {
+	Latitude                string                 `json:"latitude,optional"`                // 闪送员位置纬度（百度坐标系），40.055091
+	Longitude               string                 `json:"longitude,optional"`               // 闪送员位置经度（百度坐标系），116.289263
+	Name                    string                 `json:"name"`                             // 闪送员姓名，韩师傅
+	Mobile                  string                 `json:"mobile"`                           // 闪送员手机号，19000000000
+	Time                    string                 `json:"time"`                             // 闪送员位置所处的当前时间，2021-10-15 14:11:44
+	Type                    int                    `json:"type,optional"`                    // 字段弃用，可忽略，1
+	OrderCount              int                    `json:"orderCount,optional"`              // 闪送员服务总次数，4
+	HeadIcon                string                 `json:"headIcon,optional"`                // 闪送员头像
+	ID                      string                 `json:"id,optional"`                      // 骑手id，SSBJ000000001
+	Blacklisted             int                    `json:"blacklisted,optional"`             // 字段弃用，可忽略，0
+	DeliveryProcessTrail    []DeliveryProcessTrail `json:"deliveryProcessTrail,optional"`    // 配送过程轨迹列表
+	EstimateDeliveryTimeTip string                 `json:"estimateDeliveryTimeTip,optional"` // 预计送达时间文案，227米,预计1分钟上门
+}
+
+type DDCallbackReq struct {
+	Signature        string `json:"signature"`                   // 签名，对client_id, order_id, update_time的值进行字符串升序排列，再连接字符串，取md5值
+	ClientID         string `json:"client_id"`                   // 达达物流订单号
+	OrderID          string `json:"order_id"`                    // 第三方订单ID，对应下单接口中的origin_id
+	OrderStatus      int    `json:"order_status"`                // 订单状态
+	RepeatReasonType int    `json:"repeat_reason_type,optional"` // 重复回传状态原因(1-重新分配骑士，2-骑士转单)，可选
+	CancelReason     string `json:"cancel_reason"`               // 订单取消原因，其他状态下默认值为空字符串
+	CancelFrom       int    `json:"cancel_from"`                 // 订单取消原因来源(1:达达配送员取消；2:商家主动取消；3:系统或客服取消；0:默认值)
+	UpdateTime       int64  `json:"update_time"`                 // 更新时间，时间戳（创建达达运单失败=1000的精确毫秒，其他时间戳精确到秒）
+	DmID             int    `json:"dm_id,optional"`              // 达达配送员id，接单以后会传，可选
+	DmName           string `json:"dm_name,optional"`            // 配送员姓名，接单以后会传，可选
+	DmMobile         string `json:"dm_mobile,optional"`          // 配送员手机号，接单以后会传，可选
+	FinishCode       string `json:"finish_code,optional"`        // 收货码，可选
+}
+
+type DDCallbackResp struct {
+}
+
+type DeliveryProcessTrail struct {
+	Longitude string `json:"longitude"` // 闪送员位置经度（百度坐标系），116.289263
+	Latitude  string `json:"latitude"`  // 闪送员位置纬度（百度坐标系），40.055091
+	Datetime  string `json:"datetime"`  // 闪送员位置所处的当前时间，2021-10-14 13:30:31
+}
+
 type EmptyType struct {
+}
+
+type FNCallbackReq struct {
+	AppID        string `json:"app_id"`        // 应用ID，见官网应用管理
+	Timestamp    string `json:"timestamp"`     // 时间戳，单位毫秒
+	Signature    string `json:"signature"`     // 签名，见签名算法
+	BusinessData string `json:"business_data"` // 业务参数JSON字符串
+}
+
+type FNCallbackResp struct {
+}
+
+type OrderStatusParam struct {
+	AppID              string   `json:"app_id"`
+	OrderID            int64    `json:"order_id"`
+	PartnerOrderCode   string   `json:"partner_order_code"`
+	OrderStatus        int      `json:"order_status"` // 0:订单生成,1:系统已接单,20:骑手接单,80:骑手到店,2:配送中,3:已完成,4:已取消,5:配送异常
+	CarrierDriverID    int64    `json:"carrier_driver_id,optional"`
+	CarrierDriverName  string   `json:"carrier_driver_name,optional"`
+	CarrierDriverPhone string   `json:"carrier_driver_phone,optional"`
+	Description        string   `json:"description,optional"`
+	ErrorCode          string   `json:"error_code,optional"`
+	ErrorScene         string   `json:"error_scene,optional"`
+	DetailDescription  string   `json:"detail_description,optional"`
+	PushTime           int64    `json:"push_time"`         // 状态推送时间（毫秒）
+	Transfer           int      `json:"transfer,optional"` // 转单标识 1是转单 0非转单
+	APICode            string   `json:"apiCode,optional"`
+	APIMsg             string   `json:"apiMsg,optional"`
+	CompletePics       []string `json:"complete_pics,optional"` // 送达照片URL列表
+}
+
+type SFCancelCallbackReq struct {
+	ShopId        string `json:"shop_id"`        // 店铺ID（必填）
+	SfOrderId     string `json:"sf_order_id"`    // 顺丰订单ID（必填）
+	ShopOrderId   string `json:"shop_order_id"`  // 商家订单ID（必填）
+	UrlIndex      string `json:"url_index"`      // 回调url前缀（必填）
+	OperatorName  string `json:"operator_name"`  // 操作人（必填）
+	OperatorPhone string `json:"operator_phone"` // 操作人手机号（必填）
+	OrderStatus   int    `json:"order_status"`   // 订单状态（必填）2=订单取消
+	StatusDesc    string `json:"status_desc"`    // 状态描述（必填）
+	CancelReason  string `json:"cancel_reason"`  // 取消原因（必填）
+	CancelCode    string `json:"cancel_code"`    // 取消码（必填）
+	RiderLng      string `json:"rider_lng"`      // 配送员位置经度（必填）
+	RiderLat      string `json:"rider_lat"`      // 配送员位置纬度（必填）
+	PushTime      int    `json:"push_time"`      // 取消时间（必填）
+}
+
+type SFOrderCompleteReq struct {
+	ShopId       string   `json:"shop_id"`               // 店铺ID（必填）
+	SfOrderId    string   `json:"sf_order_id"`           // 顺丰订单ID（必填）
+	ShopOrderId  string   `json:"shop_order_id"`         // 商家订单ID（必填）
+	UrlIndex     string   `json:"url_index"`             // 回调url前缀（必填）
+	OperatorName string   `json:"operator_name"`         // 操作人（必填）
+	RiderLng     string   `json:"rider_lng,optional"`    // 配送员位置经度（可选）
+	RiderLat     string   `json:"rider_lat,optional"`    // 配送员位置纬度（可选）
+	OrderStatus  int      `json:"order_status"`          // 订单状态（必填）17=配送员点击完成
+	StatusDesc   string   `json:"status_desc"`           // 状态描述（必填）
+	PickupPic    []string `json:"pickup_pic,optional"`   // 取货照片url数组（可选）
+	CompletePic  []string `json:"complete_pic,optional"` // 妥投照片url数组（可选）
+	PushTime     int      `json:"push_time"`             // 完成时间（必填）
+	ReceiptType  int      `json:"receipt_type"`          // 签收类型（必填）1=正常签收,2=商家退回签收
+}
+
+type SFOrderExceptionReq struct {
+	ShopId        string `json:"shop_id"`              // 店铺ID（必填）
+	SfOrderId     string `json:"sf_order_id"`          // 顺丰订单号码（必填）
+	ShopOrderId   string `json:"shop_order_id"`        // 商家订单号码（必填）
+	UrlIndex      string `json:"url_index"`            // 回调url前缀（必填）
+	OperatorName  string `json:"operator_name"`        // 配送员姓名（必填）
+	OperatorPhone string `json:"operator_phone"`       // 配送员电话（必填）
+	OrderStatus   int    `json:"order_status"`         // 订单状态（必填）固定为91
+	StatusDesc    string `json:"status_desc"`          // 状态描述（必填）骑士上报异常
+	ExId          int    `json:"ex_id"`                // 异常ID（必填）
+	ExContent     string `json:"ex_content"`           // 异常详情（必填）
+	ExpectTime    string `json:"expect_time,optional"` // 新的预计送达时间（可选）
+	PushTime      int    `json:"push_time"`            // 顺丰推送时间（必填）
+}
+
+type SFOrderStatusReq struct {
+	ShopId        string `json:"shop_id"`        // 店铺ID（必填）
+	SfOrderId     string `json:"sf_order_id"`    // 顺丰订单ID（必填）
+	ShopOrderId   string `json:"shop_order_id"`  // 商家订单ID（必填）
+	UrlIndex      string `json:"url_index"`      // 回调url前缀（必填）
+	OperatorName  string `json:"operator_name"`  // 配送员姓名（必填）
+	OperatorPhone string `json:"operator_phone"` // 配送员电话（必填）
+	RiderLng      string `json:"rider_lng"`      // 配送员位置经度（必填）
+	RiderLat      string `json:"rider_lat"`      // 配送员位置纬度（必填）
+	OrderStatus   int    `json:"order_status"`   // 订单状态（必填）10=接单/改派,12=到店,15=配送中
+	StatusDesc    string `json:"status_desc"`    // 状态描述（必填）
+	PushTime      int    `json:"push_time"`      // 状态变更时间（必填）
+}
+
+type SFResp struct {
+	ErrorCode int    `json:"error_code"` // 错误码，0表示成功
+	ErrorMsg  string `json:"error_msg"`  // 错误信息
+}
+
+type SFRiderRecallReq struct {
+	ShopId      string `json:"shop_id"`       // 店铺ID（必填）
+	SfOrderId   string `json:"sf_order_id"`   // 顺丰订单ID（必填）
+	ShopOrderId string `json:"shop_order_id"` // 商家订单ID（必填）
+	UrlIndex    string `json:"url_index"`     // 回调url前缀（必填）
+	OrderStatus int    `json:"order_status"`  // 订单状态（必填）22=配送员撤单
+	StatusDesc  string `json:"status_desc"`   // 状态描述（必填）
+	PushTime    int64  `json:"push_time"`     // 骑士撤单时间，秒级时间戳（必填）
+}
+
+type SSCallbackReq struct {
+	IssOrderNo       string   `json:"issOrderNo"`                // 闪送订单号，TDH2021101514763986
+	OrderNo          string   `json:"orderNo"`                   // 第三方平台流水号，C1119A000013053981
+	Status           int      `json:"status"`                    // 订单状态，参考订单状态枚举，20
+	StatusDesc       string   `json:"statusDesc"`                // 订单状态描述，参考订单状态枚举，派单中
+	SubStatus        int      `json:"subStatus,optional"`        // 订单子状态，参考订单状态枚举，1
+	SubStatusDesc    string   `json:"subStatusDesc,optional"`    // 订单子状态描述，参考订单状态枚举，派单中
+	PickupPassword   string   `json:"pickupPassword,optional"`   // 取件密码，计费接口中pickupPwd传1时生成
+	DeliveryPassword string   `json:"deliveryPassword,optional"` // 收件密码，骑手取件后生成
+	DeductAmount     int      `json:"deductAmount,optional"`     // 扣款金额，单位：分，0
+	AbortType        int      `json:"abortType,optional"`        // 取消发起人，详见枚举，1
+	PunishType       int      `json:"punishType,optional"`       // 取消责任人，详见枚举，1
+	AbortReason      string   `json:"abortReason,optional"`      // 取消原因，客户主动取消订单
+	Courier          *Courier `json:"courier,optional"`          // 闪送员信息
+	SendBackFee      int      `json:"sendBackFee"`               // 送回费，单位：分，0
+	Drawback         int      `json:"drawback"`                  // 退款金额，单位：分，0
+}
+
+type SSCallbackResp struct {
+	Status int         `json:"status"` // 状态码，必须为200表示回调成功
+	Msg    string      `json:"msg"`    // 消息，成功时可为空
+	Data   interface{} `json:"data"`   // 数据，成功时为null
 }
 
 type UUCallbackReq struct {

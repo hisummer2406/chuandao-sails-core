@@ -1,7 +1,7 @@
 syntax = "v1"
 
 info(
-    title: "UU订单状态回调"
+    title: "UU，订单状态回调"
     author: "zhangyu"
     doc: "https://open.uupt.com/#/development/apiDoc/orderInterfaceList/callback?businessGroup=1&t=%E8%AE%A2%E5%8D%95%E7%8A%B6%E6%80%81%E5%9B%9E%E8%B0%83&index=3-2-11"
 )
@@ -33,5 +33,5 @@ type (
 service callback-api {
     @doc "订单状态回调，用户提交订单时传入"
     @handler uuCallback
-    post /state (UUCallbackReq) returns (UUCallbackResp)
+    post /uuReceiveMsg (UUCallbackReq) returns (UUCallbackResp)
 }

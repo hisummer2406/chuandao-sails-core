@@ -6,6 +6,10 @@ package handler
 import (
 	"net/http"
 
+	dd "chuandao-sails-core/apps/delivery-dispatch/api/callback/internal/handler/dd"
+	fn "chuandao-sails-core/apps/delivery-dispatch/api/callback/internal/handler/fn"
+	sf "chuandao-sails-core/apps/delivery-dispatch/api/callback/internal/handler/sf"
+	ss "chuandao-sails-core/apps/delivery-dispatch/api/callback/internal/handler/ss"
 	uu "chuandao-sails-core/apps/delivery-dispatch/api/callback/internal/handler/uu"
 	"chuandao-sails-core/apps/delivery-dispatch/api/callback/internal/svc"
 
@@ -26,9 +30,87 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				// 订单状态回调，新增订单接口callback传入的URL
+				Method:  http.MethodPost,
+				Path:    "/ddReceiveMsg",
+				Handler: dd.DdCallbackHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/callback/dd"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 订单状态回调，新增订单接口callback传入的URL
+				Method:  http.MethodPost,
+				Path:    "/ddReceiveMsg",
+				Handler: fn.DdCallbackHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/callback/fn"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 自动建店回调
+				Method:  http.MethodPost,
+				Path:    "/autoCreateShop",
+				Handler: sf.SfAutoCreateShopHandler(serverCtx),
+			},
+			{
+				// 顺丰原因订单取消回调
+				Method:  http.MethodPost,
+				Path:    "/cancelCallback/:sign",
+				Handler: sf.SfCancelCallbackHandler(serverCtx),
+			},
+			{
+				// 订单完成回调
+				Method:  http.MethodPost,
+				Path:    "/orderComplete/:sign",
+				Handler: sf.SfOrderCompleteHandler(serverCtx),
+			},
+			{
+				// 订单配送异常
+				Method:  http.MethodPost,
+				Path:    "/orderException/:sign",
+				Handler: sf.SfOrderExceptionHandler(serverCtx),
+			},
+			{
+				// 配送状态更改回调
+				Method:  http.MethodPost,
+				Path:    "/orderStatus/:sign",
+				Handler: sf.SfOrderStatusHandler(serverCtx),
+			},
+			{
+				// 骑士撤单状态回调
+				Method:  http.MethodPost,
+				Path:    "/riderRecall/:sign",
+				Handler: sf.SfRiderRecallHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/callback/sf"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 订单状态回调，回调账号配置的地址（账户中心->应用中心->回调URL：NotifyUrl）来通知订单状态的变化。
+				Method:  http.MethodPost,
+				Path:    "/ssReceiveMsg",
+				Handler: ss.DdCallbackHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/callback/ss"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
 				// 订单状态回调，用户提交订单时传入
 				Method:  http.MethodPost,
-				Path:    "/state",
+				Path:    "/uuReceiveMsg",
 				Handler: uu.UuCallbackHandler(serverCtx),
 			},
 		},
