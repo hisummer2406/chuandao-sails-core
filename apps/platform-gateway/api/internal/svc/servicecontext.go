@@ -22,14 +22,13 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	//mysql
 	conn := sqlx.NewMysql(c.DataSource)
+	//Model
+	platform := model.NewPlatformConfigModel(conn, c.Redis)
 
 	//ID生成器
 	if err := snowflake.InitDefaultGenerator(c.Snowflake.WorkerId); err != nil {
 		logx.Severef("upstream-api snowflake.InitDefaultGenerator fail: %v", err)
 	}
-
-	//Model
-	platform := model.NewPlatformConfigModel(conn, c.Redis)
 
 	//MQ
 	mqClient, err := rocketmq.NewClient(&c.RocketMQ)

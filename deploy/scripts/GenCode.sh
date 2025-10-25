@@ -3,4 +3,4 @@ goctl api go -api delivery-callback.api -dir ../ --style=gozero --home $GOPATH/s
 
 # 生成RPC代码
 # -m 分组
-goctl rpc protoc strategy.proto --go_out=../ --go-grpc_out=../ --zrpc_out=../ -m
+goctl rpc protoc platform.proto --go_out=../ --go-grpc_out=../ --zrpc_out=../ -m

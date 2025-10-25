@@ -59,6 +59,9 @@ type DriverInfo struct {
 	LastLat float64 `json:"last_lat"`
 }
 
+type EmptyType struct {
+}
+
 type FeeInfo struct {
 	QueryPrice  int     `json:"query_price"`  //询价报价 分
 	ActualPrice int     `json:"actual_price"` //实际发单价格

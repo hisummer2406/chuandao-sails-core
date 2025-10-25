@@ -6,6 +6,7 @@ import (
 
 	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/logic"
 	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/svc"
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func healthHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

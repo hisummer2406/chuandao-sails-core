@@ -164,7 +164,7 @@ type (
 
 @server (
 	prefix:     /api/v1/delivery
-	middleware: Sign
+	middleware: HTTPLogMiddleware,SignMiddleware
 )
 service delivery-api {
 	@doc "查询运费"
@@ -192,7 +192,7 @@ service delivery-api {
 	get /order/:order_no (QueryOrderReq) returns (QueryOrderResp)
 
 	@doc "查看跑男位置"
-	@handler drickerTrack
-	get /dricker/:order_no (QueryOrderReq) returns (DrickerTrackResp)
+	@handler driverTrack
+	get /driver/:order_no (QueryOrderReq) returns (DrickerTrackResp)
 }
 

@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/types"
 	"chuandao-sails-core/common/response"
 	"net/http"
 
 	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/logic"
 	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/svc"
+	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 

@@ -1,17 +1,17 @@
 package handler
 
 import (
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/types"
 	"chuandao-sails-core/common/response"
 	"net/http"
 
 	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/logic"
 	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/svc"
+	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // 查看跑男位置
-func drickerTrackHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func driverTrackHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.QueryOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
@@ -20,8 +20,8 @@ func drickerTrackHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewDrickerTrackLogic(r.Context(), svcCtx)
-		resp, err := l.DrickerTrack(&req)
+		l := logic.NewDriverTrackLogic(r.Context(), svcCtx)
+		resp, err := l.DriverTrack(&req)
 
 		//统一处理响应
 		response.HandleResponse(w, r, resp, err)

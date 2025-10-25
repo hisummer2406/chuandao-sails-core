@@ -11,8 +11,8 @@ import (
 type Config struct {
 	rest.RestConf
 	DataSource string
-	SLS        sls.Config
 	Redis      cache.CacheConf
+	SLS        sls.Config
 	Snowflake  snowflake.Config
 	RocketMQ   rocketmq.Config
 }

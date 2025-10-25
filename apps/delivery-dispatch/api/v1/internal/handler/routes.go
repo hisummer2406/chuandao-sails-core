@@ -24,7 +24,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.Sign},
+			[]rest.Middleware{serverCtx.HTTPLogMiddleware, serverCtx.SignMiddleware},
 			[]rest.Route{
 				{
 					// 取消订单
@@ -47,8 +47,8 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				{
 					// 查看跑男位置
 					Method:  http.MethodGet,
-					Path:    "/dricker/:order_no",
-					Handler: drickerTrackHandler(serverCtx),
+					Path:    "/driver/:order_no",
+					Handler: driverTrackHandler(serverCtx),
 				},
 				{
 					// 查询订单详情

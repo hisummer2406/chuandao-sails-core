@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"os"
 
 	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/config"
 	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/handler"
