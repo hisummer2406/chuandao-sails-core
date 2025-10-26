@@ -7,6 +7,7 @@ import (
 
 type Config struct {
 	zrpc.RpcServerConf
+	Mode       string
 	DataSource string
 	Redis      cache.CacheConf
 }
