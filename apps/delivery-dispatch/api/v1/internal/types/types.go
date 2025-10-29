@@ -11,7 +11,7 @@ type AddTipReq struct {
 
 type AddTipResp struct {
 	OrderNo    string           `json:"order_no"`
-	AddTipList []PlatformAddTip `json:"add_tip_list"`
+	AddTipList []DeliveryAddTip `json:"add_tip_list"`
 }
 
 type Address struct {
@@ -19,7 +19,7 @@ type Address struct {
 	Lat    string `json:"lat"`
 	Detail string `json:"detail"`
 	Name   string `json:"name"`
-	Phone  string `json:"phone"`
+	Mobile string `json:"mobile"`
 }
 
 type CancelOrderReq struct {
@@ -29,34 +29,60 @@ type CancelOrderReq struct {
 
 type CancelOrderResp struct {
 	OrderNO         string                `json:"order_no"`
-	CancelOrderList []PlatformCancelOrder `json:"cancel_order_list"`
+	CancelOrderList []DeliveryCancelOrder `json:"cancel_order_list"`
+}
+
+type Delivery struct {
+	DeliveryCode string `json:"delivery_code"`
+	DeliveryName string `json:"delivery_name"`
+}
+
+type DeliveryAddTip struct {
+	Delivery
+	Return
+}
+
+type DeliveryCancelOrder struct {
+	Delivery
+	PenaltyFee int `json:"penalty_fee"` //违约金
+}
+
+type DeliveryDispatch struct {
+	Delivery
+	DeliveryOrderNo string `json:"delivery_order_no"` //配送平台单号
+}
+
+type DeliveryPenalty struct {
+	Delivery
+	Return
+	PenaltyFee int `json:"penalty_fee"` //违约金
+}
+
+type DeliveryQuota struct {
+	Delivery
+	Price     int    `json:"price"`     // 配送费 分
+	Distance  int    `json:"distance"`  // 距离 米
+	Available int    `json:"available"` // 是否可接单
+	Reason    string `json:"reason"`    // 不可用原因
 }
 
 type DispatchOrderReq struct {
 	SignType
 	OrderNO      string `json:"order_no"`
-	PlatformCode string `json:"platform_code"`         // 指定平台
-	CallbackUrl  string `json:"callback_url",optional` //状态回调地址
+	DeliveryCode string `json:"delivery_code",optional` // 指定平台，默认询价出来的全部
+	CallbackUrl  string `json:"callback_url",optional`  //状态回调地址
 }
 
 type DispatchOrderResp struct {
 	OrderNo      string             `json:"order_no"`
-	DispatchList []PlatformDispatch `json:"dispatch_list"`
-}
-
-type DrickerTrackResp struct {
-	SignType
-	Platform
-	OrderNO         string      `json:"order_no"`
-	DeliveryOrderNo string      `json:"delivery_order_no"`
-	DriverInfo      *DriverInfo `json:"driver_info,optional"`
+	DispatchList []DeliveryDispatch `json:"dispatch_list"`
 }
 
 type DriverInfo struct {
-	Name    string  `json:"name"`
-	Mobile  string  `json:"mobile"`
-	LastLng float64 `json:"last_lng"`
-	LastLat float64 `json:"last_lat"`
+	Name    string `json:"name"`
+	Mobile  string `json:"mobile"`
+	LastLng string `json:"last_lng"`
+	LastLat string `json:"last_lat"`
 }
 
 type EmptyType struct {
@@ -70,57 +96,44 @@ type FeeInfo struct {
 	TotalFee    int     `json:"total_fee"`    //总计
 }
 
-type Platform struct {
-	PlatformCode string `json:"platform_code"`
-	PlatformName string `json:"platform_name"`
+type GetCancelFeeResp struct {
+	OrderNo     string            `json:"order_no"`
+	PenaltyList []DeliveryPenalty `json:"penalty_list"`
 }
 
-type PlatformAddTip struct {
-	Platform
-	Return
-}
-
-type PlatformCancelOrder struct {
-	Platform
-	PenaltyFee int `json:"penalty_fee"` //违约金
-}
-
-type PlatformDispatch struct {
-	Platform
-	DeliveryOrderNo string `json:"delivery_order_no"` //配送平台单号
-}
-
-type PlatformPenalty struct {
-	Platform
-	Return
-	PenaltyFee int `json:"penalty_fee"` //违约金
-}
-
-type PlatformQuota struct {
-	Platform
-	Price     int    `json:"price"`     // 配送费 分
-	Distance  int    `json:"distance"`  // 距离 米
-	Available int    `json:"available"` // 是否可接单
-	Reason    string `json:"reason"`    // 不可用原因
-}
-
-type PriceQuotaReq struct {
+type GetDriverLocResp struct {
 	SignType
-	OrderNO         string  `json:"order_no"`         //内部单号
-	FromAddress     Address `json:"from_address"`     //发货地址
-	ToAddress       Address `json:"to_address"`       // 收货地址
-	LbsType         int     `json:"lbs_type"`         //坐标系类型
-	GoodsType       int     `json:"goods_type"`       // 物品类型
-	GoodsWeight     int     `json:"goods_weight"`     // 物品重量
-	IsSubscribe     int     `json:"is_subscribe"`     //预约类型 0 立即 1 预约
-	SubscribeType   int     `json:"subscribe_type"`   // 预约类型：0实时 1预约取件 2预约送达
-	SubscribeTime   int     `json:"subscribe_time"`   // 预约时间戳
-	DisableDelivery string  `json:"disable_delivery"` //禁用运力 1,2,3
+	Delivery
+	OrderNO         string      `json:"order_no"`
+	DeliveryOrderNo string      `json:"delivery_order_no"`
+	DriverInfo      *DriverInfo `json:"driver_info,optional"`
 }
 
-type PriceQuotaResp struct {
+type GetQuotaReq struct {
+	SignType
+	OriginOrderId   string      `json:"origin_order_id"`   //对接方订单号
+	UpstreamSoucre  string      `json:"upstream_soucre"`   //推单平台
+	UpstreamOrderId string      `json:"upstream_order_id"` //推单平台订单号
+	ShortNum        int         `json:"short_num"`         //取餐号
+	GoodInfo        []GoodsList `json:"goodInfo"`          //商品详细信息列表
+	Note            string      `json:"note",optional`     //下单备注
+	FromAddress     Address     `json:"from_address"`      //发货地址
+	ToAddress       Address     `json:"to_address"`        //收货地址
+	GoodsType       int         `json:"goods_type"`        //物品类型
+	GoodsWeight     int         `json:"goods_weight"`      //物品重量
+	SubscribeType   int         `json:"subscribe_type"`    //预约类型：0实时 1预约取件 2预约送达
+	SubscribeTime   int         `json:"subscribe_time"`    //预约时间戳
+	DisableDelivery string      `json:"disable_delivery"`  //禁用运力 1,2,3
+}
+
+type GetQuotaResp struct {
 	OrderNO   string          `json:"order_no"`
-	QuotaList []PlatformQuota `json:"quota_list"` //各平台报价
+	QuotaList []DeliveryQuota `json:"quota_list"` //各平台报价
+}
+
+type GoodsList struct {
+	GoodsName string `json:"goods_name"` //商品名称
+	GoodsNum  int    `json:"goods_num"`  //数量
 }
 
 type QueryOrderReq struct {
@@ -129,7 +142,7 @@ type QueryOrderReq struct {
 }
 
 type QueryOrderResp struct {
-	Platform
+	Delivery
 	OrderNO         string      `json:"order_no"`
 	DeliveryOrderNo string      `json:"delivery_order_no"`    //配送订单号
 	Status          string      `json:"status"`               // 订单状态
@@ -139,11 +152,6 @@ type QueryOrderResp struct {
 	TimeLine        []TimeLine  `json:"time_line"` //时间线信息
 	FromAddress     Address     `json:"from_address"`
 	ToAddress       Address     `json:"to_address"`
-}
-
-type QueryPenaltyResp struct {
-	OrderNo     string            `json:"order_no"`
-	PenaltyList []PlatformPenalty `json:"penalty_list"`
 }
 
 type Return struct {

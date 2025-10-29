@@ -11,7 +11,7 @@ import (
 )
 
 // 查询取消订单费用
-func queryPenaltyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func getCancelFeeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.CancelOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
@@ -20,8 +20,8 @@ func queryPenaltyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewQueryPenaltyLogic(r.Context(), svcCtx)
-		resp, err := l.QueryPenalty(&req)
+		l := logic.NewGetCancelFeeLogic(r.Context(), svcCtx)
+		resp, err := l.GetCancelFee(&req)
 
 		//统一处理响应
 		response.HandleResponse(w, r, resp, err)

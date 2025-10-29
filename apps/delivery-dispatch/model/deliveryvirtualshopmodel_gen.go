@@ -24,13 +24,15 @@ var (
 	deliveryVirtualShopRowsExpectAutoSet   = strings.Join(stringx.Remove(deliveryVirtualShopFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	deliveryVirtualShopRowsWithPlaceHolder = strings.Join(stringx.Remove(deliveryVirtualShopFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheCdtsDeliveryDbDeliveryVirtualShopIdPrefix = "cache:cdtsDeliveryDb:deliveryVirtualShop:id:"
+	cacheCdtsDeliveryDbDeliveryVirtualShopIdPrefix                               = "cache:cdtsDeliveryDb:deliveryVirtualShop:id:"
+	cacheCdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatPrefix = "cache:cdtsDeliveryDb:deliveryVirtualShop:deliveryCode:mobile:shopLng:shopLat:"
 )
 
 type (
 	deliveryVirtualShopModel interface {
 		Insert(ctx context.Context, data *DeliveryVirtualShop) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*DeliveryVirtualShop, error)
+		FindOneByDeliveryCodeMobileShopLngShopLat(ctx context.Context, deliveryCode string, mobile string, shopLng string, shopLat string) (*DeliveryVirtualShop, error)
 		Update(ctx context.Context, data *DeliveryVirtualShop) error
 	}
 
@@ -41,17 +43,15 @@ type (
 
 	DeliveryVirtualShop struct {
 		Id             int64     `db:"id"`
-		ShopName       string    `db:"shop_name"`    // 门店名称
-		ContactName    string    `db:"contact_name"` // 门店联系人
-		Phone          string    `db:"phone"`        // 门店联系电话
-		ShopLng        float64   `db:"shop_lng"`
-		ShopLat        float64   `db:"shop_lat"`
+		DeliveryCode   string    `db:"delivery_code"`    // 配送平台类型 关联platform_config
+		ShopName       string    `db:"shop_name"`        // 门店名称
+		ContactName    string    `db:"contact_name"`     // 门店联系人
+		Mobile         string    `db:"mobile"`           // 门店联系电话
+		ShopLng        string    `db:"shop_lng"`         // 推单经度 数据不做处理
+		ShopLat        string    `db:"shop_lat"`         // 推单纬度
 		StationAddress string    `db:"station_address"`  // 门店地址
-		PlatformCode   string    `db:"platform_code"`    // 配送平台类型 关联platform_config
-		PlatformShopId string    `db:"platform_shop_id"` // 配送平台门店ID
+		DeliveryShopId string    `db:"delivery_shop_id"` // 配送平台门店ID
 		LbsType        int64     `db:"lbs_type"`         // 1 百度 2 高德/腾讯
-		AmapLng        float64   `db:"amap_lng"`         // 高德坐标
-		AmapLat        string    `db:"amap_lat"`
 		CreatedAt      time.Time `db:"created_at"`
 	}
 )
@@ -80,21 +80,48 @@ func (m *defaultDeliveryVirtualShopModel) FindOne(ctx context.Context, id int64)
 	}
 }
 
+func (m *defaultDeliveryVirtualShopModel) FindOneByDeliveryCodeMobileShopLngShopLat(ctx context.Context, deliveryCode string, mobile string, shopLng string, shopLat string) (*DeliveryVirtualShop, error) {
+	cdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatKey := fmt.Sprintf("%s%v:%v:%v:%v", cacheCdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatPrefix, deliveryCode, mobile, shopLng, shopLat)
+	var resp DeliveryVirtualShop
+	err := m.QueryRowIndexCtx(ctx, &resp, cdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `delivery_code` = ? and `mobile` = ? and `shop_lng` = ? and `shop_lat` = ? limit 1", deliveryVirtualShopRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, deliveryCode, mobile, shopLng, shopLat); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
 func (m *defaultDeliveryVirtualShopModel) Insert(ctx context.Context, data *DeliveryVirtualShop) (sql.Result, error) {
+	cdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatKey := fmt.Sprintf("%s%v:%v:%v:%v", cacheCdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatPrefix, data.DeliveryCode, data.Mobile, data.ShopLng, data.ShopLat)
 	cdtsDeliveryDbDeliveryVirtualShopIdKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryVirtualShopIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, deliveryVirtualShopRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Id, data.ShopName, data.ContactName, data.Phone, data.ShopLng, data.ShopLat, data.StationAddress, data.PlatformCode, data.PlatformShopId, data.LbsType, data.AmapLng, data.AmapLat)
-	}, cdtsDeliveryDbDeliveryVirtualShopIdKey)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, deliveryVirtualShopRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.DeliveryCode, data.ShopName, data.ContactName, data.Mobile, data.ShopLng, data.ShopLat, data.StationAddress, data.DeliveryShopId, data.LbsType)
+	}, cdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatKey, cdtsDeliveryDbDeliveryVirtualShopIdKey)
 	return ret, err
 }
 
-func (m *defaultDeliveryVirtualShopModel) Update(ctx context.Context, data *DeliveryVirtualShop) error {
+func (m *defaultDeliveryVirtualShopModel) Update(ctx context.Context, newData *DeliveryVirtualShop) error {
+	data, err := m.FindOne(ctx, newData.Id)
+	if err != nil {
+		return err
+	}
+
+	cdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatKey := fmt.Sprintf("%s%v:%v:%v:%v", cacheCdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatPrefix, data.DeliveryCode, data.Mobile, data.ShopLng, data.ShopLat)
 	cdtsDeliveryDbDeliveryVirtualShopIdKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryVirtualShopIdPrefix, data.Id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, deliveryVirtualShopRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.ShopName, data.ContactName, data.Phone, data.ShopLng, data.ShopLat, data.StationAddress, data.PlatformCode, data.PlatformShopId, data.LbsType, data.AmapLng, data.AmapLat, data.Id)
-	}, cdtsDeliveryDbDeliveryVirtualShopIdKey)
+		return conn.ExecCtx(ctx, query, newData.DeliveryCode, newData.ShopName, newData.ContactName, newData.Mobile, newData.ShopLng, newData.ShopLat, newData.StationAddress, newData.DeliveryShopId, newData.LbsType, newData.Id)
+	}, cdtsDeliveryDbDeliveryVirtualShopDeliveryCodeMobileShopLngShopLatKey, cdtsDeliveryDbDeliveryVirtualShopIdKey)
 	return err
 }
 

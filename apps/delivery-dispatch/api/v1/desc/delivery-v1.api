@@ -25,44 +25,48 @@ type SignType {
 
 type (
 	// ============ 询价相关 ============
-	PriceQuotaReq {
+	GetQuotaReq {
 		SignType
-		OrderNO         string  `json:"order_no"` //内部单号
-		FromAddress     Address `json:"from_address"` //发货地址
-		ToAddress       Address `json:"to_address"` // 收货地址
-		LbsType         int     `json:"lbs_type"` //坐标系类型
-		GoodsType       int     `json:"goods_type"` // 物品类型
-		GoodsWeight     int     `json:"goods_weight"` // 物品重量
-		IsSubscribe     int     `json:"is_subscribe"` //预约类型 0 立即 1 预约
-		SubscribeType   int     `json:"subscribe_type"` // 预约类型：0实时 1预约取件 2预约送达
-		SubscribeTime   int     `json:"subscribe_time"` // 预约时间戳
-		DisableDelivery string  `json:"disable_delivery"` //禁用运力 1,2,3
+		OriginOrderId   string      `json:"origin_order_id"` //对接方订单号
+		UpstreamSoucre  string      `json:"upstream_soucre"` //推单平台
+		UpstreamOrderId string      `json:"upstream_order_id"` //推单平台订单号
+		ShortNum        int         `json:"short_num"` //取餐号
+		GoodInfo        []GoodsList `json:"goodInfo"` //商品详细信息列表
+		Note            string      `json:"note",optional` //下单备注
+		FromAddress     Address     `json:"from_address"` //发货地址
+		ToAddress       Address     `json:"to_address"` //收货地址
+		GoodsType       int         `json:"goods_type"` //物品类型
+		GoodsWeight     int         `json:"goods_weight"` //物品重量
+		SubscribeType   int         `json:"subscribe_type"` //预约类型：0实时 1预约取件 2预约送达
+		SubscribeTime   int         `json:"subscribe_time"` //预约时间戳
+		DisableDelivery string      `json:"disable_delivery"` //禁用运力 1,2,3
 	}
-	PriceQuotaResp {
+	GetQuotaResp {
 		OrderNO   string          `json:"order_no"`
-		QuotaList []PlatformQuota `json:"quota_list"` //各平台报价
+		QuotaList []DeliveryQuota `json:"quota_list"` //各平台报价
 	}
 	//TODO 内部处理价格有效期
-	PlatformQuota {
-		Platform
+	DeliveryQuota {
+		Delivery
 		Price     int    `json:"price"` // 配送费 分
 		Distance  int    `json:"distance"` // 距离 米
 		Available int    `json:"available"` // 是否可接单
 		Reason    string `json:"reason"` // 不可用原因
 	}
 	// ============ 发单相关 ============
+	//TODO 默认发单策略
 	DispatchOrderReq {
 		SignType
 		OrderNO      string `json:"order_no"`
-		PlatformCode string `json:"platform_code"` // 指定平台
+		DeliveryCode string `json:"delivery_code",optional` // 指定平台，默认询价出来的全部
 		CallbackUrl  string `json:"callback_url",optional` //状态回调地址
 	}
 	DispatchOrderResp {
 		OrderNo      string             `json:"order_no"`
-		DispatchList []PlatformDispatch `json:"dispatch_list"`
+		DispatchList []DeliveryDispatch `json:"dispatch_list"`
 	}
-	PlatformDispatch {
-		Platform
+	DeliveryDispatch {
+		Delivery
 		DeliveryOrderNo string `json:"delivery_order_no"` //配送平台单号
 	}
 	// ============ 发单相关 ============
@@ -73,10 +77,10 @@ type (
 	}
 	AddTipResp {
 		OrderNo    string           `json:"order_no"`
-		AddTipList []PlatformAddTip `json:"add_tip_list"`
+		AddTipList []DeliveryAddTip `json:"add_tip_list"`
 	}
-	PlatformAddTip {
-		Platform
+	DeliveryAddTip {
+		Delivery
 		Return
 	}
 	// ============ 查询违约金 ============
@@ -84,22 +88,22 @@ type (
 		SignType
 		OrderNo string `json:"order_no"`
 	}
-	QueryPenaltyResp {
+	GetCancelFeeResp {
 		OrderNo     string            `json:"order_no"`
-		PenaltyList []PlatformPenalty `json:"penalty_list"`
+		PenaltyList []DeliveryPenalty `json:"penalty_list"`
 	}
-	PlatformPenalty {
-		Platform
+	DeliveryPenalty {
+		Delivery
 		Return
 		PenaltyFee int `json:"penalty_fee"` //违约金
 	}
 	// ============ 取消订单 ============
 	CancelOrderResp {
 		OrderNO         string                `json:"order_no"`
-		CancelOrderList []PlatformCancelOrder `json:"cancel_order_list"`
+		CancelOrderList []DeliveryCancelOrder `json:"cancel_order_list"`
 	}
-	PlatformCancelOrder {
-		Platform
+	DeliveryCancelOrder {
+		Delivery
 		PenaltyFee int `json:"penalty_fee"` //违约金
 	}
 	// ============ 查询订单详情 ============
@@ -108,7 +112,7 @@ type (
 		OrderNO string `path:"order_no"`
 	}
 	QueryOrderResp {
-		Platform
+		Delivery
 		OrderNO         string      `json:"order_no"`
 		DeliveryOrderNo string      `json:"delivery_order_no"` //配送订单号
 		Status          string      `json:"status"` // 订单状态
@@ -120,17 +124,17 @@ type (
 		ToAddress       Address     `json:"to_address"`
 	}
 	// ============ 查询订单详情 ============
-	DrickerTrackResp {
+	GetDriverLocResp {
 		SignType
-		Platform
+		Delivery
 		OrderNO         string      `json:"order_no"`
 		DeliveryOrderNo string      `json:"delivery_order_no"`
 		DriverInfo      *DriverInfo `json:"driver_info,optional"`
 	}
 	// ============ 公共结构体 ============
-	Platform {
-		PlatformCode string `json:"platform_code"`
-		PlatformName string `json:"platform_name"`
+	Delivery {
+		DeliveryCode string `json:"delivery_code"`
+		DeliveryName string `json:"delivery_name"`
 	}
 	Return {
 		Success string `json:"success"` //平台状态
@@ -141,13 +145,13 @@ type (
 		lat    string `json:"lat"`
 		Detail string `json:"detail"`
 		Name   string `json:"name"`
-		Phone  string `json:"phone"`
+		Mobile string `json:"mobile"`
 	}
 	DriverInfo {
-		Name    string  `json:"name"`
-		Mobile  string  `json:"mobile"`
-		LastLng float64 `json:"last_lng"`
-		LastLat float64 `json:"last_lat"`
+		Name    string `json:"name"`
+		Mobile  string `json:"mobile"`
+		LastLng string `json:"last_lng"`
+		LastLat string `json:"last_lat"`
 	}
 	FeeInfo {
 		QueryPrice  int     `json:"query_price"` //询价报价 分
@@ -155,6 +159,10 @@ type (
 		TipAmount   int     `json:"tip_amount"` //小费
 		PenaltyFee  float64 `json:"penalty_fee"` //违约金
 		TotalFee    int     `json:"total_fee"` //总计
+	}
+	GoodsList {
+		GoodsName string `json:"goods_name"` //商品名称
+		GoodsNum  int    `json:"goods_num"` //数量
 	}
 	TimeLine {
 		Time       int64  `json:"time"`
@@ -168,31 +176,31 @@ type (
 )
 service delivery-api {
 	@doc "查询运费"
-	@handler priceQuote
-	post /quote (PriceQuotaReq) returns (PriceQuotaResp)
+	@handler getQuote
+	post /GetQuote (GetQuotaReq) returns (GetQuotaResp)
 
 	@doc "查询运费后下单"
 	@handler dispatchOrder
-	post /dispatch (DispatchOrderReq) returns (DispatchOrderResp)
+	post /DispatchOrder (DispatchOrderReq) returns (DispatchOrderResp)
 
 	@doc "加小费"
 	@handler addTip
-	post /tip (AddTipReq) returns (AddTipResp)
+	post /AddTip (AddTipReq) returns (AddTipResp)
 
 	@doc "查询取消订单费用"
-	@handler queryPenalty
-	post /cancelFee (CancelOrderReq) returns (QueryPenaltyResp)
+	@handler getCancelFee
+	post /GetCancelFee (CancelOrderReq) returns (GetCancelFeeResp)
 
 	@doc "取消订单"
 	@handler cancelOrder
-	post /cancel (CancelOrderReq) returns (CancelOrderResp)
+	post /CancelOrder (CancelOrderReq) returns (CancelOrderResp)
 
 	@doc "查询订单详情"
 	@handler queryOrder
-	get /order/:order_no (QueryOrderReq) returns (QueryOrderResp)
+	get /QueryOrder/:order_no (QueryOrderReq) returns (QueryOrderResp)
 
 	@doc "查看跑男位置"
-	@handler driverTrack
-	get /driver/:order_no (QueryOrderReq) returns (DrickerTrackResp)
+	@handler getDriverLocation
+	get /GetDriverLocation/:order_no (QueryOrderReq) returns (GetDriverLocResp)
 }
 

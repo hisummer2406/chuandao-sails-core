@@ -9,22 +9,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type PriceQuoteLogic struct {
+type GetCancelFeeLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 查询运费
-func NewPriceQuoteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PriceQuoteLogic {
-	return &PriceQuoteLogic{
+// 查询取消订单费用
+func NewGetCancelFeeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetCancelFeeLogic {
+	return &GetCancelFeeLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *PriceQuoteLogic) PriceQuote(req *types.PriceQuotaReq) (resp *types.PriceQuotaResp, err error) {
+func (l *GetCancelFeeLogic) GetCancelFee(req *types.CancelOrderReq) (resp *types.GetCancelFeeResp, err error) {
 	// todo: add your logic here and delete this line
 
 	return

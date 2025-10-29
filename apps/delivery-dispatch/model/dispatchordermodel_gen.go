@@ -24,15 +24,15 @@ var (
 	dispatchOrderRowsExpectAutoSet   = strings.Join(stringx.Remove(dispatchOrderFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	dispatchOrderRowsWithPlaceHolder = strings.Join(stringx.Remove(dispatchOrderFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheDispatchOrderIdPrefix         = "cache:dispatchOrder:id:"
-	cacheDispatchOrderDeliveryNoPrefix = "cache:dispatchOrder:deliveryNo:"
+	cacheDispatchOrderIdPrefix      = "cache:dispatchOrder:id:"
+	cacheDispatchOrderOrderNoPrefix = "cache:dispatchOrder:orderNo:"
 )
 
 type (
 	dispatchOrderModel interface {
 		Insert(ctx context.Context, data *DispatchOrder) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*DispatchOrder, error)
-		FindOneByDeliveryNo(ctx context.Context, deliveryNo string) (*DispatchOrder, error)
+		FindOneByOrderNo(ctx context.Context, orderNo string) (*DispatchOrder, error)
 		Update(ctx context.Context, data *DispatchOrder) error
 	}
 
@@ -42,52 +42,37 @@ type (
 	}
 
 	DispatchOrder struct {
-		Id                 uint64    `db:"id"`                   // 主键ID
-		DeliveryNo         string    `db:"delivery_no"`          // 配送单号（系统唯一标识）
-		ExternalOrderNo    string    `db:"external_order_no"`    // 外部订单号（调用方传入）
-		BusinessNo         string    `db:"business_no"`          // 业务流水号（调用方业务ID）
-		SourceSystem       string    `db:"source_system"`        // 来源系统：ERP/WMS/TMS/ORDER_SERVICE等
-		SourceType         string    `db:"source_type"`          // 来源类型：API/MQ/RPC
-		CallbackUrl        string    `db:"callback_url"`         // 回调地址（状态变更通知）
-		PlatformCode       string    `db:"platform_code"`        // 配送平台代码：UU/DADA/FENGNIAO/SHANSONG/SF等
-		PlatformOrderNo    string    `db:"platform_order_no"`    // 平台订单号（发单后返回）
-		Status             string    `db:"status"`               // 订单状态：CREATED/DISPATCHED/ASSIGNED/PICKED/DELIVERED/COMPLETED/CANCELLED
-		StatusDesc         string    `db:"status_desc"`          // 状态描述
-		CityName           string    `db:"city_name"`            // 城市名称
-		CityCode           string    `db:"city_code"`            // 城市编码
-		FromAddress        string    `db:"from_address"`         // 起点地址 {province,city,district,address,lat,lng,contact,phone}
-		ToAddress          string    `db:"to_address"`           // 终点地址 {province,city,district,address,lat,lng,contact,phone}
-		Distance           float64   `db:"distance"`             // 配送距离（公里）
-		GoodsName          string    `db:"goods_name"`           // 货物名称
-		GoodsWeight        float64   `db:"goods_weight"`         // 货物重量（公斤）
-		GoodsInfo          string    `db:"goods_info"`           // 货物详情 {name,weight,quantity,value,remark}
-		InquiryPrice       float64   `db:"inquiry_price"`        // 询价价格（元）
-		ActualPrice        float64   `db:"actual_price"`         // 实际价格（元）
-		OnlineFee          float64   `db:"online_fee"`           // 追加小费（元）
-		TotalAmount        float64   `db:"total_amount"`         // 总金额 = actual_price + online_fee
-		ExpectPickupTime   time.Time `db:"expect_pickup_time"`   // 期望取件时间
-		ExpectDeliveryTime time.Time `db:"expect_delivery_time"` // 期望送达时间
-		EstimatedTime      int64     `db:"estimated_time"`       // 预计送达时长（分钟）
-		PickupTime         time.Time `db:"pickup_time"`          // 实际取件时间
-		DeliveredTime      time.Time `db:"delivered_time"`       // 实际送达时间
-		CompletedTime      time.Time `db:"completed_time"`       // 完成时间
-		CancelledTime      time.Time `db:"cancelled_time"`       // 取消时间
-		CourierName        string    `db:"courier_name"`         // 骑手姓名
-		CourierPhone       string    `db:"courier_phone"`        // 骑手电话
-		CourierInfo        string    `db:"courier_info"`         // 骑手详情 {name,phone,lat,lng,avatar}
-		CancelReasonId     string    `db:"cancel_reason_id"`     // 取消原因ID
-		CancelReason       string    `db:"cancel_reason"`        // 取消原因
-		CancelOperator     string    `db:"cancel_operator"`      // 取消操作人：PLATFORM/CLIENT/SYSTEM
-		PenaltyFee         float64   `db:"penalty_fee"`          // 违约金（元）
-		Remark             string    `db:"remark"`               // 订单备注
-		InternalNote       string    `db:"internal_note"`        // 内部备注（不传给平台）
-		ErrorCode          string    `db:"error_code"`           // 错误码
-		ErrorMsg           string    `db:"error_msg"`            // 错误信息
-		RetryCount         int64     `db:"retry_count"`          // 重试次数
-		ExtraData          string    `db:"extra_data"`           // 扩展数据（调用方自定义字段）
-		CreatedBy          string    `db:"created_by"`           // 创建人
-		CreatedAt          time.Time `db:"created_at"`           // 创建时间
-		UpdatedAt          time.Time `db:"updated_at"`           // 更新时间
+		Id              uint64    `db:"id"`                // 主键ID
+		OrderNo         string    `db:"order_no"`          // 系统单号
+		OriginOrderId   string    `db:"origin_order_id"`   // 对接第三方的订单号
+		UpstreamSource  string    `db:"upstream_source"`   // 上游推单来源
+		UpstreamOrderId string    `db:"upstream_order_id"` // 上游平台订单号
+		DeliveryCode    string    `db:"delivery_code"`     // 配送平台代码：UU/DD
+		DeliveryOrderNo string    `db:"delivery_order_no"` // 配送订单号
+		ShortNum        int64     `db:"short_num"`         // 取餐号
+		AccountId       int64     `db:"account_id"`        // 使用账号
+		SourceAppId     string    `db:"source_app_id"`     // 来源appid
+		InquiryId       int64     `db:"inquiry_id"`        // 询价记录ID
+		Status          string    `db:"status"`            // 订单状态
+		FromMobile      string    `db:"from_mobile"`       // 发货手机号
+		FromAddress     string    `db:"from_address"`      // 起点地址
+		ToMobile        string    `db:"to_mobile"`         // 收货手机号
+		ToAddress       string    `db:"to_address"`        // 终点地址
+		Note            string    `db:"note"`              // 下单备注
+		GoodsName       string    `db:"goods_name"`        // 货物名称
+		GoodsType       int64     `db:"goods_type"`        // 商品类型
+		GoodsDetail     string    `db:"goods_detail"`      // 货物详情
+		TotalAmount     int64     `db:"total_amount"`      // 发单价格(分)
+		PriceDetail     string    `db:"price_detail"`      // 价格详情
+		Distance        int64     `db:"distance"`          // 配送距离(米)
+		DriverName      string    `db:"driver_name"`       // 配送员
+		DriverMobile    string    `db:"driver_mobile"`     // 配送员电话
+		ShopId          int64     `db:"shop_id"`           // 门店ID
+		SubscribeType   int64     `db:"subscribe_type"`    // 预约类型
+		SubscribeTime   string    `db:"subscribe_time"`    // 预计时间
+		DisableDelivery string    `db:"disable_delivery"`  // 禁用运力
+		CreatedAt       time.Time `db:"created_at"`        // 创建时间
+		UpdatedAt       time.Time `db:"updated_at"`        // 更新时间
 	}
 )
 
@@ -115,12 +100,12 @@ func (m *defaultDispatchOrderModel) FindOne(ctx context.Context, id uint64) (*Di
 	}
 }
 
-func (m *defaultDispatchOrderModel) FindOneByDeliveryNo(ctx context.Context, deliveryNo string) (*DispatchOrder, error) {
-	dispatchOrderDeliveryNoKey := fmt.Sprintf("%s%v", cacheDispatchOrderDeliveryNoPrefix, deliveryNo)
+func (m *defaultDispatchOrderModel) FindOneByOrderNo(ctx context.Context, orderNo string) (*DispatchOrder, error) {
+	dispatchOrderOrderNoKey := fmt.Sprintf("%s%v", cacheDispatchOrderOrderNoPrefix, orderNo)
 	var resp DispatchOrder
-	err := m.QueryRowIndexCtx(ctx, &resp, dispatchOrderDeliveryNoKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `delivery_no` = ? limit 1", dispatchOrderRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, deliveryNo); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, dispatchOrderOrderNoKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `order_no` = ? limit 1", dispatchOrderRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, orderNo); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -136,12 +121,12 @@ func (m *defaultDispatchOrderModel) FindOneByDeliveryNo(ctx context.Context, del
 }
 
 func (m *defaultDispatchOrderModel) Insert(ctx context.Context, data *DispatchOrder) (sql.Result, error) {
-	dispatchOrderDeliveryNoKey := fmt.Sprintf("%s%v", cacheDispatchOrderDeliveryNoPrefix, data.DeliveryNo)
 	dispatchOrderIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderIdPrefix, data.Id)
+	dispatchOrderOrderNoKey := fmt.Sprintf("%s%v", cacheDispatchOrderOrderNoPrefix, data.OrderNo)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, dispatchOrderRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.DeliveryNo, data.ExternalOrderNo, data.BusinessNo, data.SourceSystem, data.SourceType, data.CallbackUrl, data.PlatformCode, data.PlatformOrderNo, data.Status, data.StatusDesc, data.CityName, data.CityCode, data.FromAddress, data.ToAddress, data.Distance, data.GoodsName, data.GoodsWeight, data.GoodsInfo, data.InquiryPrice, data.ActualPrice, data.OnlineFee, data.TotalAmount, data.ExpectPickupTime, data.ExpectDeliveryTime, data.EstimatedTime, data.PickupTime, data.DeliveredTime, data.CompletedTime, data.CancelledTime, data.CourierName, data.CourierPhone, data.CourierInfo, data.CancelReasonId, data.CancelReason, data.CancelOperator, data.PenaltyFee, data.Remark, data.InternalNote, data.ErrorCode, data.ErrorMsg, data.RetryCount, data.ExtraData, data.CreatedBy)
-	}, dispatchOrderDeliveryNoKey, dispatchOrderIdKey)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, dispatchOrderRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.OrderNo, data.OriginOrderId, data.UpstreamSource, data.UpstreamOrderId, data.DeliveryCode, data.DeliveryOrderNo, data.ShortNum, data.AccountId, data.SourceAppId, data.InquiryId, data.Status, data.FromMobile, data.FromAddress, data.ToMobile, data.ToAddress, data.Note, data.GoodsName, data.GoodsType, data.GoodsDetail, data.TotalAmount, data.PriceDetail, data.Distance, data.DriverName, data.DriverMobile, data.ShopId, data.SubscribeType, data.SubscribeTime, data.DisableDelivery)
+	}, dispatchOrderIdKey, dispatchOrderOrderNoKey)
 	return ret, err
 }
 
@@ -151,12 +136,12 @@ func (m *defaultDispatchOrderModel) Update(ctx context.Context, newData *Dispatc
 		return err
 	}
 
-	dispatchOrderDeliveryNoKey := fmt.Sprintf("%s%v", cacheDispatchOrderDeliveryNoPrefix, data.DeliveryNo)
 	dispatchOrderIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderIdPrefix, data.Id)
+	dispatchOrderOrderNoKey := fmt.Sprintf("%s%v", cacheDispatchOrderOrderNoPrefix, data.OrderNo)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, dispatchOrderRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.DeliveryNo, newData.ExternalOrderNo, newData.BusinessNo, newData.SourceSystem, newData.SourceType, newData.CallbackUrl, newData.PlatformCode, newData.PlatformOrderNo, newData.Status, newData.StatusDesc, newData.CityName, newData.CityCode, newData.FromAddress, newData.ToAddress, newData.Distance, newData.GoodsName, newData.GoodsWeight, newData.GoodsInfo, newData.InquiryPrice, newData.ActualPrice, newData.OnlineFee, newData.TotalAmount, newData.ExpectPickupTime, newData.ExpectDeliveryTime, newData.EstimatedTime, newData.PickupTime, newData.DeliveredTime, newData.CompletedTime, newData.CancelledTime, newData.CourierName, newData.CourierPhone, newData.CourierInfo, newData.CancelReasonId, newData.CancelReason, newData.CancelOperator, newData.PenaltyFee, newData.Remark, newData.InternalNote, newData.ErrorCode, newData.ErrorMsg, newData.RetryCount, newData.ExtraData, newData.CreatedBy, newData.Id)
-	}, dispatchOrderDeliveryNoKey, dispatchOrderIdKey)
+		return conn.ExecCtx(ctx, query, newData.OrderNo, newData.OriginOrderId, newData.UpstreamSource, newData.UpstreamOrderId, newData.DeliveryCode, newData.DeliveryOrderNo, newData.ShortNum, newData.AccountId, newData.SourceAppId, newData.InquiryId, newData.Status, newData.FromMobile, newData.FromAddress, newData.ToMobile, newData.ToAddress, newData.Note, newData.GoodsName, newData.GoodsType, newData.GoodsDetail, newData.TotalAmount, newData.PriceDetail, newData.Distance, newData.DriverName, newData.DriverMobile, newData.ShopId, newData.SubscribeType, newData.SubscribeTime, newData.DisableDelivery, newData.Id)
+	}, dispatchOrderIdKey, dispatchOrderOrderNoKey)
 	return err
 }
 

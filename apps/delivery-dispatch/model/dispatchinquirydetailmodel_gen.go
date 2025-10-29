@@ -40,31 +40,18 @@ type (
 	}
 
 	DispatchInquiryDetail struct {
-		Id              uint64    `db:"id"`                // 主键ID
-		InquiryId       string    `db:"inquiry_id"`        // 询价ID
-		ExternalOrderNo string    `db:"external_order_no"` // 外部订单号
-		PlatformCode    string    `db:"platform_code"`     // 平台代码
-		PlatformName    string    `db:"platform_name"`     // 平台名称
-		IsSuccess       int64     `db:"is_success"`        // 是否成功:1成功0失败
-		IsAvailable     int64     `db:"is_available"`      // 是否可用:1可用0不可用
-		InquiryPrice    float64   `db:"inquiry_price"`     // 询价价格(元)
-		OriginPrice     float64   `db:"origin_price"`      // 原价(元)
-		DistanceFee     float64   `db:"distance_fee"`      // 距离费用(元)
-		WeightFee       float64   `db:"weight_fee"`        // 重量费用(元)
-		TimeFee         float64   `db:"time_fee"`          // 时段费用(元)
-		PlatformFee     float64   `db:"platform_fee"`      // 平台费用(元)
-		EstimatedTime   int64     `db:"estimated_time"`    // 预计送达时长(分钟)
-		Distance        float64   `db:"distance"`          // 配送距离(公里)
-		Duration        int64     `db:"duration"`          // 询价耗时(毫秒)
-		RequestData     string    `db:"request_data"`      // 请求数据
-		ResponseData    string    `db:"response_data"`     // 响应数据
-		ErrorCode       string    `db:"error_code"`        // 错误码
-		ErrorMsg        string    `db:"error_msg"`         // 错误信息
-		SortScore       float64   `db:"sort_score"`        // 排序分数(价格/时效综合)
-		Rank            int64     `db:"rank"`              // 排名
-		ExtraData       string    `db:"extra_data"`        // 扩展数据
-		CityCode        string    `db:"city_code"`         // 城市编码
-		CreatedAt       time.Time `db:"created_at"`        // 创建时间
+		Id             uint64    `db:"id"`              // 主键ID
+		InquiryId      int64     `db:"inquiry_id"`      // 询价ID
+		AccountId      int64     `db:"account_id"`      // 询价账号ID
+		DeliveryCode   string    `db:"delivery_code"`   // 平台代码
+		Price          int64     `db:"price"`           // 配送费用(分)
+		Distance       int64     `db:"distance"`        // 配送距离(米)
+		Duration       int64     `db:"duration"`        // 接口耗时(毫秒)
+		EstimateTime   int64     `db:"estimate_time"`   // 预计时长(分钟)
+		QuoteStatus    int64     `db:"quote_status"`    // 询价状态：0-失败 1-成功
+		PriceToken     string    `db:"price_token"`     // 配送费令牌
+		ResultResponse string    `db:"result_response"` // 原始响应
+		CreatedAt      time.Time `db:"created_at"`      // 创建时间
 	}
 )
 
@@ -95,8 +82,8 @@ func (m *defaultDispatchInquiryDetailModel) FindOne(ctx context.Context, id uint
 func (m *defaultDispatchInquiryDetailModel) Insert(ctx context.Context, data *DispatchInquiryDetail) (sql.Result, error) {
 	dispatchInquiryDetailIdKey := fmt.Sprintf("%s%v", cacheDispatchInquiryDetailIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, dispatchInquiryDetailRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.InquiryId, data.ExternalOrderNo, data.PlatformCode, data.PlatformName, data.IsSuccess, data.IsAvailable, data.InquiryPrice, data.OriginPrice, data.DistanceFee, data.WeightFee, data.TimeFee, data.PlatformFee, data.EstimatedTime, data.Distance, data.Duration, data.RequestData, data.ResponseData, data.ErrorCode, data.ErrorMsg, data.SortScore, data.Rank, data.ExtraData, data.CityCode)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, dispatchInquiryDetailRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.InquiryId, data.AccountId, data.DeliveryCode, data.Price, data.Distance, data.Duration, data.EstimateTime, data.QuoteStatus, data.PriceToken, data.ResultResponse)
 	}, dispatchInquiryDetailIdKey)
 	return ret, err
 }
@@ -105,7 +92,7 @@ func (m *defaultDispatchInquiryDetailModel) Update(ctx context.Context, data *Di
 	dispatchInquiryDetailIdKey := fmt.Sprintf("%s%v", cacheDispatchInquiryDetailIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, dispatchInquiryDetailRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.InquiryId, data.ExternalOrderNo, data.PlatformCode, data.PlatformName, data.IsSuccess, data.IsAvailable, data.InquiryPrice, data.OriginPrice, data.DistanceFee, data.WeightFee, data.TimeFee, data.PlatformFee, data.EstimatedTime, data.Distance, data.Duration, data.RequestData, data.ResponseData, data.ErrorCode, data.ErrorMsg, data.SortScore, data.Rank, data.ExtraData, data.CityCode, data.Id)
+		return conn.ExecCtx(ctx, query, data.InquiryId, data.AccountId, data.DeliveryCode, data.Price, data.Distance, data.Duration, data.EstimateTime, data.QuoteStatus, data.PriceToken, data.ResultResponse, data.Id)
 	}, dispatchInquiryDetailIdKey)
 	return err
 }

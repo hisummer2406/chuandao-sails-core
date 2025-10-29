@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #目标表名
-tableName=delivery_platform_config
+tableName=dispatch_order
 #目标目录
 targetDir=./model
 

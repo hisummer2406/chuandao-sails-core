@@ -24,15 +24,13 @@ var (
 	dispatchInquiryLogRowsExpectAutoSet   = strings.Join(stringx.Remove(dispatchInquiryLogFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	dispatchInquiryLogRowsWithPlaceHolder = strings.Join(stringx.Remove(dispatchInquiryLogFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheDispatchInquiryLogIdPrefix        = "cache:dispatchInquiryLog:id:"
-	cacheDispatchInquiryLogInquiryIdPrefix = "cache:dispatchInquiryLog:inquiryId:"
+	cacheDispatchInquiryLogIdPrefix = "cache:dispatchInquiryLog:id:"
 )
 
 type (
 	dispatchInquiryLogModel interface {
 		Insert(ctx context.Context, data *DispatchInquiryLog) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*DispatchInquiryLog, error)
-		FindOneByInquiryId(ctx context.Context, inquiryId string) (*DispatchInquiryLog, error)
 		Update(ctx context.Context, data *DispatchInquiryLog) error
 	}
 
@@ -42,35 +40,16 @@ type (
 	}
 
 	DispatchInquiryLog struct {
-		Id                 uint64    `db:"id"`                   // 主键ID
-		InquiryId          string    `db:"inquiry_id"`           // 询价ID(系统生成)
-		ExternalOrderNo    string    `db:"external_order_no"`    // 外部订单号
-		BusinessNo         string    `db:"business_no"`          // 业务流水号
-		SourceSystem       string    `db:"source_system"`        // 来源系统
-		SourceType         string    `db:"source_type"`          // 来源类型:API/MQ/RPC
-		CityName           string    `db:"city_name"`            // 城市名称
-		CityCode           string    `db:"city_code"`            // 城市编码
-		FromAddress        string    `db:"from_address"`         // 起点地址
-		ToAddress          string    `db:"to_address"`           // 终点地址
-		Distance           float64   `db:"distance"`             // 配送距离(公里)
-		GoodsName          string    `db:"goods_name"`           // 货物名称
-		GoodsWeight        float64   `db:"goods_weight"`         // 货物重量(公斤)
-		GoodsInfo          string    `db:"goods_info"`           // 货物详情
-		ExpectPickupTime   time.Time `db:"expect_pickup_time"`   // 期望取件时间
-		ExpectDeliveryTime time.Time `db:"expect_delivery_time"` // 期望送达时间
-		PlatformCount      int64     `db:"platform_count"`       // 询价平台数量
-		SuccessCount       int64     `db:"success_count"`        // 成功返回数量
-		FailCount          int64     `db:"fail_count"`           // 失败数量
-		BestPlatformCode   string    `db:"best_platform_code"`   // 最优平台代码
-		BestPrice          float64   `db:"best_price"`           // 最优价格(元)
-		AvgPrice           float64   `db:"avg_price"`            // 平均价格(元)
-		MinPrice           float64   `db:"min_price"`            // 最低价格(元)
-		MaxPrice           float64   `db:"max_price"`            // 最高价格(元)
-		TotalDuration      int64     `db:"total_duration"`       // 总耗时(毫秒)
-		IsDispatched       int64     `db:"is_dispatched"`        // 是否已发单:1是0否
-		DispatchedPlatform string    `db:"dispatched_platform"`  // 实际发单平台
-		ExtraData          string    `db:"extra_data"`           // 扩展数据
-		CreatedAt          time.Time `db:"created_at"`           // 创建时间
+		Id               uint64    `db:"id"`                // 主键ID
+		OrderNo          string    `db:"order_no"`          // 订单号
+		FromAddress      string    `db:"from_address"`      // 起点地址
+		ToAddress        string    `db:"to_address"`        // 终点地址
+		Status           string    `db:"status"`            // 状态：processing/success/failed
+		GoodsType        string    `db:"goods_type"`        // 物品类型
+		DeliveryCodes    string    `db:"delivery_codes"`    // 询价平台(逗号分隔)
+		SuccessPlatforms string    `db:"success_platforms"` // 成功平台(逗号分隔)
+		TotalDuration    int64     `db:"total_duration"`    // 总耗时(毫秒)
+		CreatedAt        time.Time `db:"created_at"`        // 创建时间
 	}
 )
 
@@ -98,48 +77,21 @@ func (m *defaultDispatchInquiryLogModel) FindOne(ctx context.Context, id uint64)
 	}
 }
 
-func (m *defaultDispatchInquiryLogModel) FindOneByInquiryId(ctx context.Context, inquiryId string) (*DispatchInquiryLog, error) {
-	dispatchInquiryLogInquiryIdKey := fmt.Sprintf("%s%v", cacheDispatchInquiryLogInquiryIdPrefix, inquiryId)
-	var resp DispatchInquiryLog
-	err := m.QueryRowIndexCtx(ctx, &resp, dispatchInquiryLogInquiryIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `inquiry_id` = ? limit 1", dispatchInquiryLogRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, inquiryId); err != nil {
-			return nil, err
-		}
-		return resp.Id, nil
-	}, m.queryPrimary)
-	switch err {
-	case nil:
-		return &resp, nil
-	case sqlc.ErrNotFound:
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
-}
-
 func (m *defaultDispatchInquiryLogModel) Insert(ctx context.Context, data *DispatchInquiryLog) (sql.Result, error) {
 	dispatchInquiryLogIdKey := fmt.Sprintf("%s%v", cacheDispatchInquiryLogIdPrefix, data.Id)
-	dispatchInquiryLogInquiryIdKey := fmt.Sprintf("%s%v", cacheDispatchInquiryLogInquiryIdPrefix, data.InquiryId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, dispatchInquiryLogRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.InquiryId, data.ExternalOrderNo, data.BusinessNo, data.SourceSystem, data.SourceType, data.CityName, data.CityCode, data.FromAddress, data.ToAddress, data.Distance, data.GoodsName, data.GoodsWeight, data.GoodsInfo, data.ExpectPickupTime, data.ExpectDeliveryTime, data.PlatformCount, data.SuccessCount, data.FailCount, data.BestPlatformCode, data.BestPrice, data.AvgPrice, data.MinPrice, data.MaxPrice, data.TotalDuration, data.IsDispatched, data.DispatchedPlatform, data.ExtraData)
-	}, dispatchInquiryLogIdKey, dispatchInquiryLogInquiryIdKey)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, dispatchInquiryLogRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.OrderNo, data.FromAddress, data.ToAddress, data.Status, data.GoodsType, data.DeliveryCodes, data.SuccessPlatforms, data.TotalDuration)
+	}, dispatchInquiryLogIdKey)
 	return ret, err
 }
 
-func (m *defaultDispatchInquiryLogModel) Update(ctx context.Context, newData *DispatchInquiryLog) error {
-	data, err := m.FindOne(ctx, newData.Id)
-	if err != nil {
-		return err
-	}
-
+func (m *defaultDispatchInquiryLogModel) Update(ctx context.Context, data *DispatchInquiryLog) error {
 	dispatchInquiryLogIdKey := fmt.Sprintf("%s%v", cacheDispatchInquiryLogIdPrefix, data.Id)
-	dispatchInquiryLogInquiryIdKey := fmt.Sprintf("%s%v", cacheDispatchInquiryLogInquiryIdPrefix, data.InquiryId)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, dispatchInquiryLogRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.InquiryId, newData.ExternalOrderNo, newData.BusinessNo, newData.SourceSystem, newData.SourceType, newData.CityName, newData.CityCode, newData.FromAddress, newData.ToAddress, newData.Distance, newData.GoodsName, newData.GoodsWeight, newData.GoodsInfo, newData.ExpectPickupTime, newData.ExpectDeliveryTime, newData.PlatformCount, newData.SuccessCount, newData.FailCount, newData.BestPlatformCode, newData.BestPrice, newData.AvgPrice, newData.MinPrice, newData.MaxPrice, newData.TotalDuration, newData.IsDispatched, newData.DispatchedPlatform, newData.ExtraData, newData.Id)
-	}, dispatchInquiryLogIdKey, dispatchInquiryLogInquiryIdKey)
+		return conn.ExecCtx(ctx, query, data.OrderNo, data.FromAddress, data.ToAddress, data.Status, data.GoodsType, data.DeliveryCodes, data.SuccessPlatforms, data.TotalDuration, data.Id)
+	}, dispatchInquiryLogIdKey)
 	return err
 }
 

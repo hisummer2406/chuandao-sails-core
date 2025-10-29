@@ -45,7 +45,7 @@ type (
 		Id               uint64    `db:"id"`
 		CategoryCode     string    `db:"category_code"`     // 类目编码(唯一标识)
 		CategoryName     string    `db:"category_name"`     // 类目名称
-		PlatformMappings string    `db:"platform_mappings"` // 平台类目映射
+		DeliveryMappings string    `db:"delivery_mappings"` // 平台类目映射
 		PriceConfig      string    `db:"price_config"`      // 价格配置
 		Status           int64     `db:"status"`            // 状态:1启用 0禁用
 		CreatedAt        time.Time `db:"created_at"`
@@ -102,7 +102,7 @@ func (m *defaultDeliveryCategoryMappingModel) Insert(ctx context.Context, data *
 	cdtsDeliveryDbDeliveryCategoryMappingIdKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryCategoryMappingIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, deliveryCategoryMappingRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.CategoryCode, data.CategoryName, data.PlatformMappings, data.PriceConfig, data.Status)
+		return conn.ExecCtx(ctx, query, data.CategoryCode, data.CategoryName, data.DeliveryMappings, data.PriceConfig, data.Status)
 	}, cdtsDeliveryDbDeliveryCategoryMappingCategoryCodeKey, cdtsDeliveryDbDeliveryCategoryMappingIdKey)
 	return ret, err
 }
@@ -117,7 +117,7 @@ func (m *defaultDeliveryCategoryMappingModel) Update(ctx context.Context, newDat
 	cdtsDeliveryDbDeliveryCategoryMappingIdKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryCategoryMappingIdPrefix, data.Id)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, deliveryCategoryMappingRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.CategoryCode, newData.CategoryName, newData.PlatformMappings, newData.PriceConfig, newData.Status, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.CategoryCode, newData.CategoryName, newData.DeliveryMappings, newData.PriceConfig, newData.Status, newData.Id)
 	}, cdtsDeliveryDbDeliveryCategoryMappingCategoryCodeKey, cdtsDeliveryDbDeliveryCategoryMappingIdKey)
 	return err
 }

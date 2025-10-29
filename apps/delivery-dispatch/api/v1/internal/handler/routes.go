@@ -27,46 +27,46 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.HTTPLogMiddleware, serverCtx.SignMiddleware},
 			[]rest.Route{
 				{
-					// 取消订单
+					// 加小费
 					Method:  http.MethodPost,
-					Path:    "/cancel",
-					Handler: cancelOrderHandler(serverCtx),
+					Path:    "/AddTip",
+					Handler: addTipHandler(serverCtx),
 				},
 				{
-					// 查询取消订单费用
+					// 取消订单
 					Method:  http.MethodPost,
-					Path:    "/cancelFee",
-					Handler: queryPenaltyHandler(serverCtx),
+					Path:    "/CancelOrder",
+					Handler: cancelOrderHandler(serverCtx),
 				},
 				{
 					// 查询运费后下单
 					Method:  http.MethodPost,
-					Path:    "/dispatch",
+					Path:    "/DispatchOrder",
 					Handler: dispatchOrderHandler(serverCtx),
+				},
+				{
+					// 查询取消订单费用
+					Method:  http.MethodPost,
+					Path:    "/GetCancelFee",
+					Handler: getCancelFeeHandler(serverCtx),
 				},
 				{
 					// 查看跑男位置
 					Method:  http.MethodGet,
-					Path:    "/driver/:order_no",
-					Handler: driverTrackHandler(serverCtx),
-				},
-				{
-					// 查询订单详情
-					Method:  http.MethodGet,
-					Path:    "/order/:order_no",
-					Handler: queryOrderHandler(serverCtx),
+					Path:    "/GetDriverLocation/:order_no",
+					Handler: getDriverLocationHandler(serverCtx),
 				},
 				{
 					// 查询运费
 					Method:  http.MethodPost,
-					Path:    "/quote",
-					Handler: priceQuoteHandler(serverCtx),
+					Path:    "/GetQuote",
+					Handler: getQuoteHandler(serverCtx),
 				},
 				{
-					// 加小费
-					Method:  http.MethodPost,
-					Path:    "/tip",
-					Handler: addTipHandler(serverCtx),
+					// 查询订单详情
+					Method:  http.MethodGet,
+					Path:    "/QueryOrder/:order_no",
+					Handler: queryOrderHandler(serverCtx),
 				},
 			}...,
 		),

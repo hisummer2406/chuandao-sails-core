@@ -43,11 +43,10 @@ type (
 
 	DeliveryPlatformAccount struct {
 		Id             int64     `db:"id"`               // 主键ID
-		PlatformId     int64     `db:"platform_id"`      // 平台ID
+		DeliveryCode   string    `db:"delivery_code"`    // 配送平台Code
 		AccountCode    string    `db:"account_code"`     // 账号编码(唯一标识)
 		AccountName    string    `db:"account_name"`     // 账号名称
 		Status         int64     `db:"status"`           // 账号状态：1启用 0禁用
-		ApiBaseUrl     string    `db:"api_base_url"`     // API基础地址
 		AppId          string    `db:"app_id"`           // 应用ID
 		AppKey         string    `db:"app_key"`          // 应用Key
 		AppSecret      string    `db:"app_secret"`       // 应用Secret
@@ -55,10 +54,6 @@ type (
 		TokenExpiresAt time.Time `db:"token_expires_at"` // Token过期时间
 		WebhookUrl     string    `db:"webhook_url"`      // 回调地址
 		WebhookSecret  string    `db:"webhook_secret"`   // 回调密钥
-		TimeoutMs      int64     `db:"timeout_ms"`       // 超时时间(毫秒)
-		RetryTimes     int64     `db:"retry_times"`      // 重试次数
-		Weight         int64     `db:"weight"`           // 账号权重
-		Priority       int64     `db:"priority"`         // 优先级(数字越小优先级越高)
 		ExtraConfig    string    `db:"extra_config"`     // 扩展配置(JSON格式)
 		Remark         string    `db:"remark"`           // 备注
 		CreatedAt      time.Time `db:"created_at"`
@@ -114,8 +109,8 @@ func (m *defaultDeliveryPlatformAccountModel) Insert(ctx context.Context, data *
 	cdtsDeliveryDbDeliveryPlatformAccountAccountCodeKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformAccountAccountCodePrefix, data.AccountCode)
 	cdtsDeliveryDbDeliveryPlatformAccountIdKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformAccountIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, deliveryPlatformAccountRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.PlatformId, data.AccountCode, data.AccountName, data.Status, data.ApiBaseUrl, data.AppId, data.AppKey, data.AppSecret, data.AccessToken, data.TokenExpiresAt, data.WebhookUrl, data.WebhookSecret, data.TimeoutMs, data.RetryTimes, data.Weight, data.Priority, data.ExtraConfig, data.Remark)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, deliveryPlatformAccountRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.DeliveryCode, data.AccountCode, data.AccountName, data.Status, data.AppId, data.AppKey, data.AppSecret, data.AccessToken, data.TokenExpiresAt, data.WebhookUrl, data.WebhookSecret, data.ExtraConfig, data.Remark)
 	}, cdtsDeliveryDbDeliveryPlatformAccountAccountCodeKey, cdtsDeliveryDbDeliveryPlatformAccountIdKey)
 	return ret, err
 }
@@ -130,7 +125,7 @@ func (m *defaultDeliveryPlatformAccountModel) Update(ctx context.Context, newDat
 	cdtsDeliveryDbDeliveryPlatformAccountIdKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformAccountIdPrefix, data.Id)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, deliveryPlatformAccountRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.PlatformId, newData.AccountCode, newData.AccountName, newData.Status, newData.ApiBaseUrl, newData.AppId, newData.AppKey, newData.AppSecret, newData.AccessToken, newData.TokenExpiresAt, newData.WebhookUrl, newData.WebhookSecret, newData.TimeoutMs, newData.RetryTimes, newData.Weight, newData.Priority, newData.ExtraConfig, newData.Remark, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.DeliveryCode, newData.AccountCode, newData.AccountName, newData.Status, newData.AppId, newData.AppKey, newData.AppSecret, newData.AccessToken, newData.TokenExpiresAt, newData.WebhookUrl, newData.WebhookSecret, newData.ExtraConfig, newData.Remark, newData.Id)
 	}, cdtsDeliveryDbDeliveryPlatformAccountAccountCodeKey, cdtsDeliveryDbDeliveryPlatformAccountIdKey)
 	return err
 }

@@ -10,18 +10,18 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// 查看跑男位置
-func driverTrackHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+// 查询运费
+func getQuoteHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.QueryOrderReq
+		var req types.GetQuotaReq
 		if err := httpx.Parse(r, &req); err != nil {
 			//参数错误
 			response.HandleResponse(w, r, nil, response.NewParamErrorWithCtx(r.Context(), err.Error()))
 			return
 		}
 
-		l := logic.NewDriverTrackLogic(r.Context(), svcCtx)
-		resp, err := l.DriverTrack(&req)
+		l := logic.NewGetQuoteLogic(r.Context(), svcCtx)
+		resp, err := l.GetQuote(&req)
 
 		//统一处理响应
 		response.HandleResponse(w, r, resp, err)

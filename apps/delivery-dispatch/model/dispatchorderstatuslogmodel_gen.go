@@ -41,19 +41,13 @@ type (
 
 	DispatchOrderStatusLog struct {
 		Id              uint64    `db:"id"`                // 主键ID
-		DeliveryNo      string    `db:"delivery_no"`       // 配送单号
-		ExternalOrderNo string    `db:"external_order_no"` // 外部订单号
-		PlatformCode    string    `db:"platform_code"`     // 配送平台代码
-		PlatformOrderNo string    `db:"platform_order_no"` // 平台订单号
+		OrderNo         string    `db:"order_no"`          // 配送单号
+		DeliveryCode    string    `db:"delivery_code"`     // 配送平台代码
+		DeliveryOrderNo string    `db:"delivery_order_no"` // 平台订单号
 		OldStatus       string    `db:"old_status"`        // 原状态
 		NewStatus       string    `db:"new_status"`        // 新状态
 		StatusDesc      string    `db:"status_desc"`       // 状态描述
-		Operator        string    `db:"operator"`          // 操作人
-		OperatorType    string    `db:"operator_type"`     // 操作类型：SYSTEM/PLATFORM/USER/API
-		OperationSource string    `db:"operation_source"`  // 操作来源：CALLBACK/POLLING/MANUAL/AUTO
-		ChangeReason    string    `db:"change_reason"`     // 变更原因
-		ExtraData       string    `db:"extra_data"`        // 扩展数据
-		CityCode        string    `db:"city_code"`         // 城市编码
+		Remark          string    `db:"remark"`            // 备注
 		CreatedAt       time.Time `db:"created_at"`        // 创建时间
 	}
 )
@@ -85,8 +79,8 @@ func (m *defaultDispatchOrderStatusLogModel) FindOne(ctx context.Context, id uin
 func (m *defaultDispatchOrderStatusLogModel) Insert(ctx context.Context, data *DispatchOrderStatusLog) (sql.Result, error) {
 	dispatchOrderStatusLogIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderStatusLogIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, dispatchOrderStatusLogRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.DeliveryNo, data.ExternalOrderNo, data.PlatformCode, data.PlatformOrderNo, data.OldStatus, data.NewStatus, data.StatusDesc, data.Operator, data.OperatorType, data.OperationSource, data.ChangeReason, data.ExtraData, data.CityCode)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, dispatchOrderStatusLogRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.OrderNo, data.DeliveryCode, data.DeliveryOrderNo, data.OldStatus, data.NewStatus, data.StatusDesc, data.Remark)
 	}, dispatchOrderStatusLogIdKey)
 	return ret, err
 }
@@ -95,7 +89,7 @@ func (m *defaultDispatchOrderStatusLogModel) Update(ctx context.Context, data *D
 	dispatchOrderStatusLogIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderStatusLogIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, dispatchOrderStatusLogRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.DeliveryNo, data.ExternalOrderNo, data.PlatformCode, data.PlatformOrderNo, data.OldStatus, data.NewStatus, data.StatusDesc, data.Operator, data.OperatorType, data.OperationSource, data.ChangeReason, data.ExtraData, data.CityCode, data.Id)
+		return conn.ExecCtx(ctx, query, data.OrderNo, data.DeliveryCode, data.DeliveryOrderNo, data.OldStatus, data.NewStatus, data.StatusDesc, data.Remark, data.Id)
 	}, dispatchOrderStatusLogIdKey)
 	return err
 }

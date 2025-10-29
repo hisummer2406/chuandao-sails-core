@@ -25,14 +25,14 @@ var (
 	deliveryPlatformConfigRowsWithPlaceHolder = strings.Join(stringx.Remove(deliveryPlatformConfigFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheCdtsDeliveryDbDeliveryPlatformConfigIdPrefix           = "cache:cdtsDeliveryDb:deliveryPlatformConfig:id:"
-	cacheCdtsDeliveryDbDeliveryPlatformConfigPlatformCodePrefix = "cache:cdtsDeliveryDb:deliveryPlatformConfig:platformCode:"
+	cacheCdtsDeliveryDbDeliveryPlatformConfigDeliveryCodePrefix = "cache:cdtsDeliveryDb:deliveryPlatformConfig:deliveryCode:"
 )
 
 type (
 	deliveryPlatformConfigModel interface {
 		Insert(ctx context.Context, data *DeliveryPlatformConfig) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*DeliveryPlatformConfig, error)
-		FindOneByPlatformCode(ctx context.Context, platformCode string) (*DeliveryPlatformConfig, error)
+		FindOneByDeliveryCode(ctx context.Context, deliveryCode string) (*DeliveryPlatformConfig, error)
 		Update(ctx context.Context, data *DeliveryPlatformConfig) error
 	}
 
@@ -43,10 +43,10 @@ type (
 
 	DeliveryPlatformConfig struct {
 		Id           int64     `db:"id"`            // 主键ID
-		PlatformCode string    `db:"platform_code"` // 平台编码
-		PlatformName string    `db:"platform_name"` // 平台名称
+		DeliveryCode string    `db:"delivery_code"` // 平台编码
+		DeliveryName string    `db:"delivery_name"` // 平台名称
 		Status       int64     `db:"status"`        // 平台状态：1启用 0禁用
-		Weight       int64     `db:"weight"`        // 平台权重(用于负载均衡)
+		ApiUrl       string    `db:"api_url"`       // API基础地址
 		Remark       string    `db:"remark"`        // 备注
 		CreatedAt    time.Time `db:"created_at"`
 		UpdatedAt    time.Time `db:"updated_at"`
@@ -77,12 +77,12 @@ func (m *defaultDeliveryPlatformConfigModel) FindOne(ctx context.Context, id int
 	}
 }
 
-func (m *defaultDeliveryPlatformConfigModel) FindOneByPlatformCode(ctx context.Context, platformCode string) (*DeliveryPlatformConfig, error) {
-	cdtsDeliveryDbDeliveryPlatformConfigPlatformCodeKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformConfigPlatformCodePrefix, platformCode)
+func (m *defaultDeliveryPlatformConfigModel) FindOneByDeliveryCode(ctx context.Context, deliveryCode string) (*DeliveryPlatformConfig, error) {
+	cdtsDeliveryDbDeliveryPlatformConfigDeliveryCodeKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformConfigDeliveryCodePrefix, deliveryCode)
 	var resp DeliveryPlatformConfig
-	err := m.QueryRowIndexCtx(ctx, &resp, cdtsDeliveryDbDeliveryPlatformConfigPlatformCodeKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `platform_code` = ? limit 1", deliveryPlatformConfigRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, platformCode); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, cdtsDeliveryDbDeliveryPlatformConfigDeliveryCodeKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `delivery_code` = ? limit 1", deliveryPlatformConfigRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, deliveryCode); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -98,12 +98,12 @@ func (m *defaultDeliveryPlatformConfigModel) FindOneByPlatformCode(ctx context.C
 }
 
 func (m *defaultDeliveryPlatformConfigModel) Insert(ctx context.Context, data *DeliveryPlatformConfig) (sql.Result, error) {
+	cdtsDeliveryDbDeliveryPlatformConfigDeliveryCodeKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformConfigDeliveryCodePrefix, data.DeliveryCode)
 	cdtsDeliveryDbDeliveryPlatformConfigIdKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformConfigIdPrefix, data.Id)
-	cdtsDeliveryDbDeliveryPlatformConfigPlatformCodeKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformConfigPlatformCodePrefix, data.PlatformCode)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, deliveryPlatformConfigRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.PlatformCode, data.PlatformName, data.Status, data.Weight, data.Remark)
-	}, cdtsDeliveryDbDeliveryPlatformConfigIdKey, cdtsDeliveryDbDeliveryPlatformConfigPlatformCodeKey)
+		return conn.ExecCtx(ctx, query, data.DeliveryCode, data.DeliveryName, data.Status, data.ApiUrl, data.Remark)
+	}, cdtsDeliveryDbDeliveryPlatformConfigDeliveryCodeKey, cdtsDeliveryDbDeliveryPlatformConfigIdKey)
 	return ret, err
 }
 
@@ -113,12 +113,12 @@ func (m *defaultDeliveryPlatformConfigModel) Update(ctx context.Context, newData
 		return err
 	}
 
+	cdtsDeliveryDbDeliveryPlatformConfigDeliveryCodeKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformConfigDeliveryCodePrefix, data.DeliveryCode)
 	cdtsDeliveryDbDeliveryPlatformConfigIdKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformConfigIdPrefix, data.Id)
-	cdtsDeliveryDbDeliveryPlatformConfigPlatformCodeKey := fmt.Sprintf("%s%v", cacheCdtsDeliveryDbDeliveryPlatformConfigPlatformCodePrefix, data.PlatformCode)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, deliveryPlatformConfigRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.PlatformCode, newData.PlatformName, newData.Status, newData.Weight, newData.Remark, newData.Id)
-	}, cdtsDeliveryDbDeliveryPlatformConfigIdKey, cdtsDeliveryDbDeliveryPlatformConfigPlatformCodeKey)
+		return conn.ExecCtx(ctx, query, newData.DeliveryCode, newData.DeliveryName, newData.Status, newData.ApiUrl, newData.Remark, newData.Id)
+	}, cdtsDeliveryDbDeliveryPlatformConfigDeliveryCodeKey, cdtsDeliveryDbDeliveryPlatformConfigIdKey)
 	return err
 }
 
