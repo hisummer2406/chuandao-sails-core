@@ -33,7 +33,8 @@ CREATE TABLE `dispatch_order`
     `updated_at`        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_order_no` (`order_no`),
-    KEY `idx_delivery_order` (`delivery_code`, `delivery_order_no`),
+    UNIQUE KEY `uk_upstream_id` (`upstream_order_id`),
+    KEY `idx_delivery_order` (`delivery_order_no`,`delivery_code`),
     KEY `idx_created_at` (`created_at`),
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='配送订单主表';

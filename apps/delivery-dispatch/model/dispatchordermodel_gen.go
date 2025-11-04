@@ -24,8 +24,9 @@ var (
 	dispatchOrderRowsExpectAutoSet   = strings.Join(stringx.Remove(dispatchOrderFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	dispatchOrderRowsWithPlaceHolder = strings.Join(stringx.Remove(dispatchOrderFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheDispatchOrderIdPrefix      = "cache:dispatchOrder:id:"
-	cacheDispatchOrderOrderNoPrefix = "cache:dispatchOrder:orderNo:"
+	cacheDispatchOrderIdPrefix              = "cache:dispatchOrder:id:"
+	cacheDispatchOrderOrderNoPrefix         = "cache:dispatchOrder:orderNo:"
+	cacheDispatchOrderUpstreamOrderIdPrefix = "cache:dispatchOrder:upstreamOrderId:"
 )
 
 type (
@@ -33,6 +34,7 @@ type (
 		Insert(ctx context.Context, data *DispatchOrder) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*DispatchOrder, error)
 		FindOneByOrderNo(ctx context.Context, orderNo string) (*DispatchOrder, error)
+		FindOneByUpstreamOrderId(ctx context.Context, upstreamOrderId string) (*DispatchOrder, error)
 		Update(ctx context.Context, data *DispatchOrder) error
 	}
 
@@ -120,13 +122,34 @@ func (m *defaultDispatchOrderModel) FindOneByOrderNo(ctx context.Context, orderN
 	}
 }
 
+func (m *defaultDispatchOrderModel) FindOneByUpstreamOrderId(ctx context.Context, upstreamOrderId string) (*DispatchOrder, error) {
+	dispatchOrderUpstreamOrderIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderUpstreamOrderIdPrefix, upstreamOrderId)
+	var resp DispatchOrder
+	err := m.QueryRowIndexCtx(ctx, &resp, dispatchOrderUpstreamOrderIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `upstream_order_id` = ? limit 1", dispatchOrderRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, upstreamOrderId); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
 func (m *defaultDispatchOrderModel) Insert(ctx context.Context, data *DispatchOrder) (sql.Result, error) {
 	dispatchOrderIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderIdPrefix, data.Id)
 	dispatchOrderOrderNoKey := fmt.Sprintf("%s%v", cacheDispatchOrderOrderNoPrefix, data.OrderNo)
+	dispatchOrderUpstreamOrderIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderUpstreamOrderIdPrefix, data.UpstreamOrderId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, dispatchOrderRowsExpectAutoSet)
 		return conn.ExecCtx(ctx, query, data.OrderNo, data.OriginOrderId, data.UpstreamSource, data.UpstreamOrderId, data.DeliveryCode, data.DeliveryOrderNo, data.ShortNum, data.AccountId, data.SourceAppId, data.InquiryId, data.Status, data.FromMobile, data.FromAddress, data.ToMobile, data.ToAddress, data.Note, data.GoodsName, data.GoodsType, data.GoodsDetail, data.TotalAmount, data.PriceDetail, data.Distance, data.DriverName, data.DriverMobile, data.ShopId, data.SubscribeType, data.SubscribeTime, data.DisableDelivery)
-	}, dispatchOrderIdKey, dispatchOrderOrderNoKey)
+	}, dispatchOrderIdKey, dispatchOrderOrderNoKey, dispatchOrderUpstreamOrderIdKey)
 	return ret, err
 }
 
@@ -138,10 +161,11 @@ func (m *defaultDispatchOrderModel) Update(ctx context.Context, newData *Dispatc
 
 	dispatchOrderIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderIdPrefix, data.Id)
 	dispatchOrderOrderNoKey := fmt.Sprintf("%s%v", cacheDispatchOrderOrderNoPrefix, data.OrderNo)
+	dispatchOrderUpstreamOrderIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderUpstreamOrderIdPrefix, data.UpstreamOrderId)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, dispatchOrderRowsWithPlaceHolder)
 		return conn.ExecCtx(ctx, query, newData.OrderNo, newData.OriginOrderId, newData.UpstreamSource, newData.UpstreamOrderId, newData.DeliveryCode, newData.DeliveryOrderNo, newData.ShortNum, newData.AccountId, newData.SourceAppId, newData.InquiryId, newData.Status, newData.FromMobile, newData.FromAddress, newData.ToMobile, newData.ToAddress, newData.Note, newData.GoodsName, newData.GoodsType, newData.GoodsDetail, newData.TotalAmount, newData.PriceDetail, newData.Distance, newData.DriverName, newData.DriverMobile, newData.ShopId, newData.SubscribeType, newData.SubscribeTime, newData.DisableDelivery, newData.Id)
-	}, dispatchOrderIdKey, dispatchOrderOrderNoKey)
+	}, dispatchOrderIdKey, dispatchOrderOrderNoKey, dispatchOrderUpstreamOrderIdKey)
 	return err
 }
 

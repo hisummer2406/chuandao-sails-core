@@ -30,15 +30,15 @@ type (
 		OriginOrderId   string      `json:"origin_order_id"` //对接方订单号
 		UpstreamSoucre  string      `json:"upstream_soucre"` //推单平台
 		UpstreamOrderId string      `json:"upstream_order_id"` //推单平台订单号
-		ShortNum        int         `json:"short_num"` //取餐号
+		ShortNum        int64       `json:"short_num"` //取餐号
 		GoodInfo        []GoodsList `json:"goodInfo"` //商品详细信息列表
 		Note            string      `json:"note",optional` //下单备注
 		FromAddress     Address     `json:"from_address"` //发货地址
 		ToAddress       Address     `json:"to_address"` //收货地址
-		GoodsType       int         `json:"goods_type"` //物品类型
-		GoodsWeight     int         `json:"goods_weight"` //物品重量
-		SubscribeType   int         `json:"subscribe_type"` //预约类型：0实时 1预约取件 2预约送达
-		SubscribeTime   int         `json:"subscribe_time"` //预约时间戳
+		GoodsType       int64       `json:"goods_type"` //物品类型
+		GoodsWeight     float64     `json:"goods_weight"` //物品重量
+		SubscribeType   int64       `json:"subscribe_type"` //预约类型：0实时 1预约取件 2预约送达
+		SubscribeTime   string      `json:"subscribe_time"` //预约时间戳
 		DisableDelivery string      `json:"disable_delivery"` //禁用运力 1,2,3
 	}
 	GetQuotaResp {
@@ -48,9 +48,9 @@ type (
 	//TODO 内部处理价格有效期
 	DeliveryQuota {
 		Delivery
-		Price     int    `json:"price"` // 配送费 分
-		Distance  int    `json:"distance"` // 距离 米
-		Available int    `json:"available"` // 是否可接单
+		Price     int64  `json:"price"` // 配送费 分
+		Distance  int64  `json:"distance"` // 距离 米
+		Available int64  `json:"available"` // 是否可接单
 		Reason    string `json:"reason"` // 不可用原因
 	}
 	// ============ 发单相关 ============
@@ -73,7 +73,7 @@ type (
 	AddTipReq {
 		SignType
 		OrderNo   string `json:"order_no"` // 订单号
-		TipAmount int    `json:"tip_amount"` // 小费金额 分
+		TipAmount int64  `json:"tip_amount"` // 小费金额 分
 	}
 	AddTipResp {
 		OrderNo    string           `json:"order_no"`
@@ -95,7 +95,7 @@ type (
 	DeliveryPenalty {
 		Delivery
 		Return
-		PenaltyFee int `json:"penalty_fee"` //违约金
+		PenaltyFee int64 `json:"penalty_fee"` //违约金
 	}
 	// ============ 取消订单 ============
 	CancelOrderResp {
@@ -104,7 +104,7 @@ type (
 	}
 	DeliveryCancelOrder {
 		Delivery
-		PenaltyFee int `json:"penalty_fee"` //违约金
+		PenaltyFee int64 `json:"penalty_fee"` //违约金
 	}
 	// ============ 查询订单详情 ============
 	QueryOrderReq {
@@ -154,15 +154,15 @@ type (
 		LastLat string `json:"last_lat"`
 	}
 	FeeInfo {
-		QueryPrice  int     `json:"query_price"` //询价报价 分
-		ActualPrice int     `json:"actual_price"` //实际发单价格
-		TipAmount   int     `json:"tip_amount"` //小费
+		QueryPrice  int64   `json:"query_price"` //询价报价 分
+		ActualPrice int64   `json:"actual_price"` //实际发单价格
+		TipAmount   int64   `json:"tip_amount"` //小费
 		PenaltyFee  float64 `json:"penalty_fee"` //违约金
-		TotalFee    int     `json:"total_fee"` //总计
+		TotalFee    int64   `json:"total_fee"` //总计
 	}
 	GoodsList {
 		GoodsName string `json:"goods_name"` //商品名称
-		GoodsNum  int    `json:"goods_num"` //数量
+		GoodsNum  int64  `json:"goods_num"` //数量
 	}
 	TimeLine {
 		Time       int64  `json:"time"`

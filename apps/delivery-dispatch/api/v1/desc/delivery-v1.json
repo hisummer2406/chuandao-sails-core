@@ -1,0 +1,939 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "配送调度服务V1 - 基础发单",
+    "version": "v1.0.0"
+  },
+  "basePath": "/",
+  "paths": {
+    "/api/v1/delivery/AddTip": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "加小费",
+        "operationId": "addTip",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "appId",
+                "timestamp",
+                "data",
+                "sign",
+                "order_no",
+                "tip_amount"
+              ],
+              "properties": {
+                "appId": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "order_no": {
+                  "description": "订单号",
+                  "type": "string"
+                },
+                "sign": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                },
+                "tip_amount": {
+                  "description": "小费金额 分",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "add_tip_list": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "delivery_code",
+                      "delivery_name",
+                      "success"
+                    ],
+                    "properties": {
+                      "Message": {
+                        "description": "平台返回信息",
+                        "type": "string"
+                      },
+                      "delivery_code": {
+                        "type": "string"
+                      },
+                      "delivery_name": {
+                        "type": "string"
+                      },
+                      "success": {
+                        "description": "平台状态",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "order_no": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/delivery/CancelOrder": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "取消订单",
+        "operationId": "cancelOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "appId",
+                "timestamp",
+                "data",
+                "sign",
+                "order_no"
+              ],
+              "properties": {
+                "appId": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "order_no": {
+                  "type": "string"
+                },
+                "sign": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cancel_order_list": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "delivery_code",
+                      "delivery_name",
+                      "penalty_fee"
+                    ],
+                    "properties": {
+                      "delivery_code": {
+                        "type": "string"
+                      },
+                      "delivery_name": {
+                        "type": "string"
+                      },
+                      "penalty_fee": {
+                        "description": "违约金",
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "order_no": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/delivery/DispatchOrder": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "查询运费后下单",
+        "operationId": "dispatchOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "appId",
+                "timestamp",
+                "data",
+                "sign",
+                "order_no"
+              ],
+              "properties": {
+                "appId": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "order_no": {
+                  "type": "string"
+                },
+                "sign": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dispatch_list": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "delivery_code",
+                      "delivery_name",
+                      "delivery_order_no"
+                    ],
+                    "properties": {
+                      "delivery_code": {
+                        "type": "string"
+                      },
+                      "delivery_name": {
+                        "type": "string"
+                      },
+                      "delivery_order_no": {
+                        "description": "配送平台单号",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "order_no": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/delivery/GetCancelFee": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "查询取消订单费用",
+        "operationId": "getCancelFee",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "appId",
+                "timestamp",
+                "data",
+                "sign",
+                "order_no"
+              ],
+              "properties": {
+                "appId": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "order_no": {
+                  "type": "string"
+                },
+                "sign": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "order_no": {
+                  "type": "string"
+                },
+                "penalty_list": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "delivery_code",
+                      "delivery_name",
+                      "success",
+                      "penalty_fee"
+                    ],
+                    "properties": {
+                      "Message": {
+                        "description": "平台返回信息",
+                        "type": "string"
+                      },
+                      "delivery_code": {
+                        "type": "string"
+                      },
+                      "delivery_name": {
+                        "type": "string"
+                      },
+                      "penalty_fee": {
+                        "description": "违约金",
+                        "type": "integer"
+                      },
+                      "success": {
+                        "description": "平台状态",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/delivery/GetDriverLocation/{order_no}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "查看跑男位置",
+        "operationId": "getDriverLocation",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "order_no",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "appId",
+                "timestamp",
+                "data",
+                "sign"
+              ],
+              "properties": {
+                "appId": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "sign": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "appId": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "delivery_code": {
+                  "type": "string"
+                },
+                "delivery_name": {
+                  "type": "string"
+                },
+                "delivery_order_no": {
+                  "type": "string"
+                },
+                "driver_info": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "mobile",
+                    "last_lng",
+                    "last_lat"
+                  ],
+                  "properties": {
+                    "last_lat": {
+                      "type": "string"
+                    },
+                    "last_lng": {
+                      "type": "string"
+                    },
+                    "mobile": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "order_no": {
+                  "type": "string"
+                },
+                "sign": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/delivery/GetQuote": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "查询运费",
+        "operationId": "getQuote",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "appId",
+                "timestamp",
+                "data",
+                "sign",
+                "origin_order_id",
+                "upstream_soucre",
+                "upstream_order_id",
+                "short_num",
+                "goodInfo",
+                "from_address",
+                "to_address",
+                "goods_type",
+                "goods_weight",
+                "subscribe_type",
+                "subscribe_time",
+                "disable_delivery"
+              ],
+              "properties": {
+                "appId": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "disable_delivery": {
+                  "description": "禁用运力 1,2,3",
+                  "type": "string"
+                },
+                "from_address": {
+                  "description": "发货地址",
+                  "type": "object",
+                  "required": [
+                    "lng",
+                    "lat",
+                    "detail",
+                    "name",
+                    "mobile"
+                  ],
+                  "properties": {
+                    "detail": {
+                      "type": "string"
+                    },
+                    "lat": {
+                      "type": "string"
+                    },
+                    "lng": {
+                      "type": "string"
+                    },
+                    "mobile": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "goodInfo": {
+                  "description": "商品详细信息列表",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "goods_name",
+                      "goods_num"
+                    ],
+                    "properties": {
+                      "goods_name": {
+                        "description": "商品名称",
+                        "type": "string"
+                      },
+                      "goods_num": {
+                        "description": "数量",
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "goods_type": {
+                  "description": "物品类型",
+                  "type": "integer"
+                },
+                "goods_weight": {
+                  "description": "物品重量",
+                  "type": "number"
+                },
+                "origin_order_id": {
+                  "description": "对接方订单号",
+                  "type": "string"
+                },
+                "short_num": {
+                  "description": "取餐号",
+                  "type": "integer"
+                },
+                "sign": {
+                  "type": "string"
+                },
+                "subscribe_time": {
+                  "description": "预约时间戳",
+                  "type": "string"
+                },
+                "subscribe_type": {
+                  "description": "预约类型：0实时 1预约取件 2预约送达",
+                  "type": "integer"
+                },
+                "timestamp": {
+                  "type": "string"
+                },
+                "to_address": {
+                  "description": "收货地址",
+                  "type": "object",
+                  "required": [
+                    "lng",
+                    "lat",
+                    "detail",
+                    "name",
+                    "mobile"
+                  ],
+                  "properties": {
+                    "detail": {
+                      "type": "string"
+                    },
+                    "lat": {
+                      "type": "string"
+                    },
+                    "lng": {
+                      "type": "string"
+                    },
+                    "mobile": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "upstream_order_id": {
+                  "description": "推单平台订单号",
+                  "type": "string"
+                },
+                "upstream_soucre": {
+                  "description": "推单平台",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "order_no": {
+                  "type": "string"
+                },
+                "quota_list": {
+                  "description": "各平台报价",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "delivery_code",
+                      "delivery_name",
+                      "price",
+                      "distance",
+                      "available",
+                      "reason"
+                    ],
+                    "properties": {
+                      "available": {
+                        "description": "是否可接单",
+                        "type": "integer"
+                      },
+                      "delivery_code": {
+                        "type": "string"
+                      },
+                      "delivery_name": {
+                        "type": "string"
+                      },
+                      "distance": {
+                        "description": "距离 米",
+                        "type": "integer"
+                      },
+                      "price": {
+                        "description": "配送费 分",
+                        "type": "integer"
+                      },
+                      "reason": {
+                        "description": "不可用原因",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/delivery/QueryOrder/{order_no}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "查询订单详情",
+        "operationId": "queryOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "order_no",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "appId",
+                "timestamp",
+                "data",
+                "sign"
+              ],
+              "properties": {
+                "appId": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "sign": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "delivery_code": {
+                  "type": "string"
+                },
+                "delivery_name": {
+                  "type": "string"
+                },
+                "delivery_order_no": {
+                  "description": "配送订单号",
+                  "type": "string"
+                },
+                "driver_info": {
+                  "description": "骑手信息",
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "mobile",
+                    "last_lng",
+                    "last_lat"
+                  ],
+                  "properties": {
+                    "last_lat": {
+                      "type": "string"
+                    },
+                    "last_lng": {
+                      "type": "string"
+                    },
+                    "mobile": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "fee_info": {
+                  "type": "object",
+                  "required": [
+                    "query_price",
+                    "actual_price",
+                    "tip_amount",
+                    "penalty_fee",
+                    "total_fee"
+                  ],
+                  "properties": {
+                    "actual_price": {
+                      "description": "实际发单价格",
+                      "type": "integer"
+                    },
+                    "penalty_fee": {
+                      "description": "违约金",
+                      "type": "number"
+                    },
+                    "query_price": {
+                      "description": "询价报价 分",
+                      "type": "integer"
+                    },
+                    "tip_amount": {
+                      "description": "小费",
+                      "type": "integer"
+                    },
+                    "total_fee": {
+                      "description": "总计",
+                      "type": "integer"
+                    }
+                  }
+                },
+                "from_address": {
+                  "type": "object",
+                  "required": [
+                    "lng",
+                    "lat",
+                    "detail",
+                    "name",
+                    "mobile"
+                  ],
+                  "properties": {
+                    "detail": {
+                      "type": "string"
+                    },
+                    "lat": {
+                      "type": "string"
+                    },
+                    "lng": {
+                      "type": "string"
+                    },
+                    "mobile": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "note": {
+                  "description": "订单备注",
+                  "type": "string"
+                },
+                "order_no": {
+                  "type": "string"
+                },
+                "status": {
+                  "description": "订单状态",
+                  "type": "string"
+                },
+                "time_line": {
+                  "description": "时间线信息",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "time",
+                      "status_node"
+                    ],
+                    "properties": {
+                      "status_node": {
+                        "description": "发单/预计到达/达到/完成 时间",
+                        "type": "string"
+                      },
+                      "time": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "to_address": {
+                  "type": "object",
+                  "required": [
+                    "lng",
+                    "lat",
+                    "detail",
+                    "name",
+                    "mobile"
+                  ],
+                  "properties": {
+                    "detail": {
+                      "type": "string"
+                    },
+                    "lat": {
+                      "type": "string"
+                    },
+                    "lng": {
+                      "type": "string"
+                    },
+                    "mobile": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "health",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-date": "2025-11-02 17:43:08",
+  "x-description": "This is a goctl generated swagger file.",
+  "x-github": "https://github.com/zeromicro/go-zero",
+  "x-go-zero-doc": "https://go-zero.dev/",
+  "x-goctl-version": "1.8.5"
+}

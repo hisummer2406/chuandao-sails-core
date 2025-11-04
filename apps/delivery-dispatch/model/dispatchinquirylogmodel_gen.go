@@ -30,7 +30,7 @@ var (
 type (
 	dispatchInquiryLogModel interface {
 		Insert(ctx context.Context, data *DispatchInquiryLog) (sql.Result, error)
-		FindOne(ctx context.Context, id uint64) (*DispatchInquiryLog, error)
+		FindOne(ctx context.Context, id int64) (*DispatchInquiryLog, error)
 		Update(ctx context.Context, data *DispatchInquiryLog) error
 	}
 
@@ -40,12 +40,12 @@ type (
 	}
 
 	DispatchInquiryLog struct {
-		Id               uint64    `db:"id"`                // 主键ID
+		Id               int64     `db:"id"`                // 主键ID
 		OrderNo          string    `db:"order_no"`          // 订单号
 		FromAddress      string    `db:"from_address"`      // 起点地址
 		ToAddress        string    `db:"to_address"`        // 终点地址
 		Status           string    `db:"status"`            // 状态：processing/success/failed
-		GoodsType        string    `db:"goods_type"`        // 物品类型
+		GoodsType        int64     `db:"goods_type"`        // 物品类型
 		DeliveryCodes    string    `db:"delivery_codes"`    // 询价平台(逗号分隔)
 		SuccessPlatforms string    `db:"success_platforms"` // 成功平台(逗号分隔)
 		TotalDuration    int64     `db:"total_duration"`    // 总耗时(毫秒)
@@ -60,7 +60,7 @@ func newDispatchInquiryLogModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...ca
 	}
 }
 
-func (m *defaultDispatchInquiryLogModel) FindOne(ctx context.Context, id uint64) (*DispatchInquiryLog, error) {
+func (m *defaultDispatchInquiryLogModel) FindOne(ctx context.Context, id int64) (*DispatchInquiryLog, error) {
 	dispatchInquiryLogIdKey := fmt.Sprintf("%s%v", cacheDispatchInquiryLogIdPrefix, id)
 	var resp DispatchInquiryLog
 	err := m.QueryRowCtx(ctx, &resp, dispatchInquiryLogIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {

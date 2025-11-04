@@ -6,7 +6,7 @@ package types
 type AddTipReq struct {
 	SignType
 	OrderNo   string `json:"order_no"`   // 订单号
-	TipAmount int    `json:"tip_amount"` // 小费金额 分
+	TipAmount int64  `json:"tip_amount"` // 小费金额 分
 }
 
 type AddTipResp struct {
@@ -44,7 +44,7 @@ type DeliveryAddTip struct {
 
 type DeliveryCancelOrder struct {
 	Delivery
-	PenaltyFee int `json:"penalty_fee"` //违约金
+	PenaltyFee int64 `json:"penalty_fee"` //违约金
 }
 
 type DeliveryDispatch struct {
@@ -55,14 +55,14 @@ type DeliveryDispatch struct {
 type DeliveryPenalty struct {
 	Delivery
 	Return
-	PenaltyFee int `json:"penalty_fee"` //违约金
+	PenaltyFee int64 `json:"penalty_fee"` //违约金
 }
 
 type DeliveryQuota struct {
 	Delivery
-	Price     int    `json:"price"`     // 配送费 分
-	Distance  int    `json:"distance"`  // 距离 米
-	Available int    `json:"available"` // 是否可接单
+	Price     int64  `json:"price"`     // 配送费 分
+	Distance  int64  `json:"distance"`  // 距离 米
+	Available int64  `json:"available"` // 是否可接单
 	Reason    string `json:"reason"`    // 不可用原因
 }
 
@@ -89,11 +89,11 @@ type EmptyType struct {
 }
 
 type FeeInfo struct {
-	QueryPrice  int     `json:"query_price"`  //询价报价 分
-	ActualPrice int     `json:"actual_price"` //实际发单价格
-	TipAmount   int     `json:"tip_amount"`   //小费
+	QueryPrice  int64   `json:"query_price"`  //询价报价 分
+	ActualPrice int64   `json:"actual_price"` //实际发单价格
+	TipAmount   int64   `json:"tip_amount"`   //小费
 	PenaltyFee  float64 `json:"penalty_fee"`  //违约金
-	TotalFee    int     `json:"total_fee"`    //总计
+	TotalFee    int64   `json:"total_fee"`    //总计
 }
 
 type GetCancelFeeResp struct {
@@ -114,15 +114,15 @@ type GetQuotaReq struct {
 	OriginOrderId   string      `json:"origin_order_id"`   //对接方订单号
 	UpstreamSoucre  string      `json:"upstream_soucre"`   //推单平台
 	UpstreamOrderId string      `json:"upstream_order_id"` //推单平台订单号
-	ShortNum        int         `json:"short_num"`         //取餐号
+	ShortNum        int64       `json:"short_num"`         //取餐号
 	GoodInfo        []GoodsList `json:"goodInfo"`          //商品详细信息列表
 	Note            string      `json:"note",optional`     //下单备注
 	FromAddress     Address     `json:"from_address"`      //发货地址
 	ToAddress       Address     `json:"to_address"`        //收货地址
-	GoodsType       int         `json:"goods_type"`        //物品类型
-	GoodsWeight     int         `json:"goods_weight"`      //物品重量
-	SubscribeType   int         `json:"subscribe_type"`    //预约类型：0实时 1预约取件 2预约送达
-	SubscribeTime   int         `json:"subscribe_time"`    //预约时间戳
+	GoodsType       int64       `json:"goods_type"`        //物品类型
+	GoodsWeight     float64     `json:"goods_weight"`      //物品重量
+	SubscribeType   int64       `json:"subscribe_type"`    //预约类型：0实时 1预约取件 2预约送达
+	SubscribeTime   string       `json:"subscribe_time"`    //预约时间戳
 	DisableDelivery string      `json:"disable_delivery"`  //禁用运力 1,2,3
 }
 
@@ -133,7 +133,7 @@ type GetQuotaResp struct {
 
 type GoodsList struct {
 	GoodsName string `json:"goods_name"` //商品名称
-	GoodsNum  int    `json:"goods_num"`  //数量
+	GoodsNum  int64  `json:"goods_num"`  //数量
 }
 
 type QueryOrderReq struct {

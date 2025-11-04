@@ -34,17 +34,17 @@ type (
 		ToLng            string   `json:"to_lng"`
 		ToLat            string   `json:"to_lat"`
 		ToAddress        string   `json:"to_address"`
-		GoodsType        int      `json:"goods_type"`
+		GoodsType        int64    `json:"goods_type"`
 		GoodsWeight      float64  `json:"goods_weight"`
-		SubscribeType    int      `json:"subscribe_type"`    // 预约类型，默认实时订单
-		SubscribeTime    string   `json:"subscribe_time"`    // 预约时间时间戳（秒级）
+		SubscribeType    int64    `json:"subscribe_type"`    // 预约类型，默认实时订单
+		SubscribeTime    string   `json:"subscribe_time"`    // 预约时间时间戳 pkg 转Time
 		DisablePlatforms []string `json:"disable_platforms"` // 禁用询价平台列表
 	}
 
 	QuoteResult struct {
 		OrderNo      string `json:"order_no"`
-		PlatformCode string `json:"platform_code"`
-		PlatformName string `json:"platform_name"`
+		DeliveryCode string `json:"delivery_code"`
+		DeliveryName string `json:"delivery_name"`
 		AccountId    int64  `json:"account_id"`
 		AccountName  string `json:"account_name"`
 		Price        int64  `json:"price"`         // 分
@@ -101,7 +101,7 @@ func (e *PricingEngine) GetQuotes(ctx context.Context, req *QuoteRequest) []*Quo
 func (e *PricingEngine) queryPlatformAccount(
 	ctx context.Context,
 	wg *sync.WaitGroup,
-	platformCode string,
+	deliveryCode string,
 	account *platform.PlatformAccount,
 	req *QuoteRequest,
 	results chan<- *QuoteResult,
@@ -110,12 +110,12 @@ func (e *PricingEngine) queryPlatformAccount(
 	startTime := time.Now()
 
 	// 1.获取平台适配器
-	adapter, err := e.platformManager.GetAdapter(platformCode)
+	adapter, err := e.platformManager.GetAdapter(deliveryCode)
 	if err != nil {
-		logx.Errorf("Get adapter[%s] error: %v", platformCode, err)
+		logx.Errorf("Get adapter[%s] error: %v", deliveryCode, err)
 		results <- &QuoteResult{
 			OrderNo:      req.OrderNo,
-			PlatformCode: platformCode,
+			DeliveryCode: deliveryCode,
 			AccountId:    account.ID,
 			AccountName:  account.AccountName,
 			Available:    false,
@@ -142,11 +142,11 @@ func (e *PricingEngine) queryPlatformAccount(
 	responseTime := time.Since(startTime).Milliseconds()
 	// 4.处理结果
 	if err != nil {
-		logx.Errorf("平台询价失败[%s-%s]: %v", platformCode, req.OrderNo, err)
+		logx.Errorf("平台询价失败[%s-%s]: %v", deliveryCode, req.OrderNo, err)
 		results <- &QuoteResult{
 			OrderNo:      req.OrderNo,
-			PlatformCode: platformCode,
-			PlatformName: resp.PlatformName,
+			DeliveryCode: deliveryCode,
+			DeliveryName: resp.DeliveryName,
 			AccountId:    account.ID,
 			AccountName:  account.AccountName,
 			Available:    false,
@@ -159,8 +159,8 @@ func (e *PricingEngine) queryPlatformAccount(
 	// 5.返回成功结果
 	results <- &QuoteResult{
 		OrderNo:      req.OrderNo,
-		PlatformCode: resp.PlatformCode,
-		PlatformName: resp.PlatformName,
+		DeliveryCode: resp.DeliveryCode,
+		DeliveryName: resp.DeliveryName,
 		AccountId:    resp.AccountId,
 		AccountName:  account.AccountName,
 		Price:        resp.Price,

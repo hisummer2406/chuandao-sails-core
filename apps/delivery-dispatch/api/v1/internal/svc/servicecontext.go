@@ -18,20 +18,20 @@ type ServiceContext struct {
 	SignMiddleware    rest.Middleware
 	PlatformRpc       zrpc.RpcClientConf
 
-	PlatformManager *platform.PlatformManager //平台管理器
-	PricingEngine   *pricing.PricingEngine    //询价引擎
+	PlatformManager *platform.PlatformManager // 平台管理器
+	PricingEngine   *pricing.PricingEngine    // 询价引擎
 
-	DispatchOrderModel          model.DispatchOrderModel //订单表
+	DispatchOrderModel          model.DispatchOrderModel // 订单
 	DispatchOrderStatusLogModel model.DispatchOrderStatusLogModel
-	DispatchInquiryLogModel     model.DispatchInquiryLogModel //询价
+	DispatchInquiryLogModel     model.DispatchInquiryLogModel // 询价
 	DispatchInquiryDetailModel  model.DispatchInquiryDetailModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	//连接platform-gateway rpc
+	// 连接platform-gateway rpc
 	platformRpc := platformclient.NewPlatform(zrpc.MustNewClient(c.PlatformRpc))
 
-	//model
+	// model
 	conn := sqlx.NewMysql(c.DataSource)
 
 	return &ServiceContext{

@@ -30,7 +30,7 @@ type (
 		AppKey       string `db:"app_key"`
 		AppSecret    string `db:"app_secret"`
 		Status       int    `db:"status"`       // 1-启用 0-禁用
-		ExtraConfig  string `db:"extra_config"` //JSON 扩展配置
+		ExtraConfig  string `db:"extra_config"` // JSON 扩展配置
 	}
 )
 
@@ -42,15 +42,15 @@ type PlatformAdapter interface {
 	GetQuote(ctx context.Context, account *PlatformAccount, req *QuoteRequest) (*QuoteResponse, error)
 	// DispatchOrder 发单
 	DispatchOrder(ctx context.Context, account *PlatformAccount, req *DispatchOrderRequest) (*DispatchOrderResponse, error)
-	//GetCancelFee 获取违约金
+	// GetCancelFee 获取违约金
 	GetCancelFee(ctx context.Context, account *PlatformAccount, PlatformOrderNo string) error
-	//CancelOrder 取消订单(TODO 取消原因写死)
+	// CancelOrder 取消订单(TODO 取消原因写死)
 	CancelOrder(ctx context.Context, account *PlatformAccount, PlatformOrderNo string) error
-	//GetDriverLocation 获取骑手位置
+	// GetDriverLocation 获取骑手位置
 	GetDriverLocation(ctx context.Context, account *PlatformAccount, PlatformOrderNo string) (string, error)
-	//AddTip 加小费
+	// AddTip 加小费
 	AddTip(ctx context.Context, account *PlatformAccount, PlatformOrderNo string, amount int64) error
-	//QueryOrder 查询订单
+	// QueryOrder 查询订单
 	QueryOrder(ctx context.Context, account *PlatformAccount, PlatformOrderNo string) (*OrderDetail, error)
 }
 
@@ -61,25 +61,25 @@ type (
 	QuoteRequest struct {
 		OrderNo     string  `json:"order_no"`
 		CityCode    string  `json:"city_code"`
-		FromLng     string  `json:"from_lng"` //发货地址
+		FromLng     string  `json:"from_lng"` // 发货地址
 		FromLat     string  `json:"from_lat"`
 		FromAddress string  `json:"from_address"`
-		ToLng       string  `json:"to_lng"` //收货地址
+		ToLng       string  `json:"to_lng"` // 收货地址
 		ToLat       string  `json:"to_lat"`
 		ToAddress   string  `json:"to_address"`
-		GoodsType   int     `json:"goods_type"` //TODO 注意兼容
+		GoodsType   int64   `json:"goods_type"` // TODO 注意兼容
 		GoodsWeight float64 `json:"goods_weight"`
 	}
 
 	QuoteResponse struct {
 		OrderNo      string `json:"order_no"`
-		PlatformCode string `json:"platform_code"` //平台
-		PlatformName string `json:"platform_name"`
-		AccountId    int64  `json:"account_id"` //账号ID
-		Price        int64  `json:"price"`      //报价
-		Distance     int64  `json:"distance"`   //距离
-		Available    bool   `json:"available"`  //平台是否可用
-		Reason       string `json:"reason"`     //不可用时返回原因
+		DeliveryCode string `json:"delivery_code"` // 平台
+		DeliveryName string `json:"delivery_name"`
+		AccountId    int64  `json:"account_id"` // 账号ID
+		Price        int64  `json:"price"`      // 报价
+		Distance     int64  `json:"distance"`   // 距离
+		Available    bool   `json:"available"`  // 平台是否可用
+		Reason       string `json:"reason"`     // 不可用时返回原因
 		Duration     int64  `json:"duration"`   //
 	}
 )
@@ -88,28 +88,28 @@ type (
 type (
 	DispatchOrderRequest struct {
 		OrderNo     string  `json:"order_no"`
-		FromName    string  `json:"from_name"` //发货信息
+		FromName    string  `json:"from_name"` // 发货信息
 		FromMobile  string  `json:"from_mobile"`
 		FromLng     string  `json:"from_lng"`
 		FromLat     string  `json:"from_lat"`
 		FromAddress string  `json:"from_address"`
-		ToName      string  `json:"to_name"` //收货信息
+		ToName      string  `json:"to_name"` // 收货信息
 		ToMobile    string  `json:"to_mobile"`
 		ToLng       string  `json:"to_lng"`
 		ToLat       string  `json:"to_lat"`
 		ToAddress   string  `json:"to_address"`
-		GoodsName   string  `json:"goods_name"` //物品信息
+		GoodsName   string  `json:"goods_name"` // 物品信息
 		GoodsType   int     `json:"goods_type"`
 		GoodsWeight float64 `json:"goods_weight"`
-		Remark      string  `json:"remark"`       //备注信息
-		CallbackUrl string  `json:"callback_url"` //订单状态回调地址
+		Remark      string  `json:"remark"`       // 备注信息
+		CallbackUrl string  `json:"callback_url"` // 订单状态回调地址
 	}
 
 	DispatchOrderResponse struct {
 		PlatformOrderNo string `json:"platform_order_no"`
 		Status          int    `json:"status"`
-		EstimatedTime   int    `json:"estimated_time"` //预估时间
-		Fee             int64  `json:"fee"`            //发单价格
+		EstimatedTime   int    `json:"estimated_time"` // 预估时间
+		Fee             int64  `json:"fee"`            // 发单价格
 	}
 )
 
@@ -120,10 +120,10 @@ type OrderDetail struct {
 	StatusText      string    `db:"status_text"`
 	DriverName      string    `db:"driver_name"`
 	DriverMobile    string    `db:"driver_mobile"`
-	CreateTime      time.Time `db:"create_time"`  //发单时间
-	AcceptTime      time.Time `db:"accept_time"`  //接单时间
-	PickupTime      time.Time `db:"pickup_time"`  //取货时间
-	DeliverTime     time.Time `db:"deliver_time"` //送达时间
+	CreateTime      time.Time `db:"create_time"`  // 发单时间
+	AcceptTime      time.Time `db:"accept_time"`  // 接单时间
+	PickupTime      time.Time `db:"pickup_time"`  // 取货时间
+	DeliverTime     time.Time `db:"deliver_time"` // 送达时间
 }
 
 // 骑手位置
@@ -150,7 +150,7 @@ type PlatformManager struct {
 	configs  map[string]*PlatformConfig
 	accounts map[string][]*PlatformAccount
 	adapters map[string]PlatformAdapter
-	mu       sync.RWMutex //读写互斥锁，读多写少的场景
+	mu       sync.RWMutex // 读写互斥锁，读多写少的场景
 }
 
 // NewPlatformManager 创建平台管理器
@@ -243,7 +243,7 @@ func (m *PlatformManager) GetAllAvailableAccounts(disableCodes []string) map[str
 		disableMap[code] = true
 	}
 
-	//一个平台多账号 map[string][]*PlatformAccount
+	// 一个平台多账号 map[string][]*PlatformAccount
 	result := make(map[string][]*PlatformAccount)
 	for platformCode, accounts := range m.accounts {
 		if !disableMap[platformCode] {
