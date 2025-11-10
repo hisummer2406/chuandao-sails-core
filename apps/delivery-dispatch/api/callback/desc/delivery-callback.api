@@ -1,10 +1,10 @@
-syntax = "v1"
+syntax = "delivery"
 
 info (
 	title:   "配送平台回调服务"
 	desc:    "接收各配送平台的状态回调通知，统一格式化后发送MQ异步处理"
 	author:  "zhangyu"
-	version: "v1.0"
+	version: "delivery.0"
 )
 
 import (

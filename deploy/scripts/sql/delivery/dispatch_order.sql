@@ -28,7 +28,7 @@ CREATE TABLE `dispatch_order`
     `shop_id`           int NOT NULL COMMENT '门店ID',
     `subscribe_type`    int NOT NULL DEFAULT 0 COMMENT '预约类型',
     `subscribe_time`    varchar(255) NOT NULL DEFAULT '0' COMMENT '预计时间',
-    `disable_delivery`  varchar(255) NOT NULL DEFAULT '' COMMENT '禁用运力',
+    `select_delivery`   varchar(255) NOT NULL DEFAULT '' COMMENT '选择运力',
     `created_at`        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),

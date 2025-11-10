@@ -1,10 +1,10 @@
-syntax = "v1"
+syntax = "delivery"
 
 info (
 	title:   "配送调度服务V1 - 基础发单"
 	desc:    "聚合16个配送平台的统一调度API服务，提供基础的配送平台发单、取消、查询功能"
 	author:  "zhangyu"
-	version: "v1.0.0"
+	version: "delivery.0.0"
 )
 
 type EmptyType {}
@@ -39,7 +39,7 @@ type (
 		GoodsWeight     float64     `json:"goods_weight"` //物品重量
 		SubscribeType   int64       `json:"subscribe_type"` //预约类型：0实时 1预约取件 2预约送达
 		SubscribeTime   string      `json:"subscribe_time"` //预约时间戳
-		DisableDelivery string      `json:"disable_delivery"` //禁用运力 1,2,3
+		SelectDelivery  string      `json:"select_delivery"` //选择运力 1,2,3
 	}
 	GetQuotaResp {
 		OrderNO   string          `json:"order_no"`

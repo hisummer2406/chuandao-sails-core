@@ -138,7 +138,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				{
 					// 订单详情
 					Method:  http.MethodPost,
-					Path:    "/platform/v1/order/detail",
+					Path:    "/platform/delivery/order/detail",
 					Handler: uu.UuDetailHandler(serverCtx),
 				},
 			}...,

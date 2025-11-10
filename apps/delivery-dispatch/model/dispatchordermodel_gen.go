@@ -72,7 +72,7 @@ type (
 		ShopId          int64     `db:"shop_id"`           // 门店ID
 		SubscribeType   int64     `db:"subscribe_type"`    // 预约类型
 		SubscribeTime   string    `db:"subscribe_time"`    // 预计时间
-		DisableDelivery string    `db:"disable_delivery"`  // 禁用运力
+		SelectDelivery  string    `db:"select_delivery"`   // 选择运力
 		CreatedAt       time.Time `db:"created_at"`        // 创建时间
 		UpdatedAt       time.Time `db:"updated_at"`        // 更新时间
 	}
@@ -148,7 +148,7 @@ func (m *defaultDispatchOrderModel) Insert(ctx context.Context, data *DispatchOr
 	dispatchOrderUpstreamOrderIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderUpstreamOrderIdPrefix, data.UpstreamOrderId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, dispatchOrderRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.OrderNo, data.OriginOrderId, data.UpstreamSource, data.UpstreamOrderId, data.DeliveryCode, data.DeliveryOrderNo, data.ShortNum, data.AccountId, data.SourceAppId, data.InquiryId, data.Status, data.FromMobile, data.FromAddress, data.ToMobile, data.ToAddress, data.Note, data.GoodsName, data.GoodsType, data.GoodsDetail, data.TotalAmount, data.PriceDetail, data.Distance, data.DriverName, data.DriverMobile, data.ShopId, data.SubscribeType, data.SubscribeTime, data.DisableDelivery)
+		return conn.ExecCtx(ctx, query, data.OrderNo, data.OriginOrderId, data.UpstreamSource, data.UpstreamOrderId, data.DeliveryCode, data.DeliveryOrderNo, data.ShortNum, data.AccountId, data.SourceAppId, data.InquiryId, data.Status, data.FromMobile, data.FromAddress, data.ToMobile, data.ToAddress, data.Note, data.GoodsName, data.GoodsType, data.GoodsDetail, data.TotalAmount, data.PriceDetail, data.Distance, data.DriverName, data.DriverMobile, data.ShopId, data.SubscribeType, data.SubscribeTime, data.SelectDelivery)
 	}, dispatchOrderIdKey, dispatchOrderOrderNoKey, dispatchOrderUpstreamOrderIdKey)
 	return ret, err
 }
@@ -164,7 +164,7 @@ func (m *defaultDispatchOrderModel) Update(ctx context.Context, newData *Dispatc
 	dispatchOrderUpstreamOrderIdKey := fmt.Sprintf("%s%v", cacheDispatchOrderUpstreamOrderIdPrefix, data.UpstreamOrderId)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, dispatchOrderRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.OrderNo, newData.OriginOrderId, newData.UpstreamSource, newData.UpstreamOrderId, newData.DeliveryCode, newData.DeliveryOrderNo, newData.ShortNum, newData.AccountId, newData.SourceAppId, newData.InquiryId, newData.Status, newData.FromMobile, newData.FromAddress, newData.ToMobile, newData.ToAddress, newData.Note, newData.GoodsName, newData.GoodsType, newData.GoodsDetail, newData.TotalAmount, newData.PriceDetail, newData.Distance, newData.DriverName, newData.DriverMobile, newData.ShopId, newData.SubscribeType, newData.SubscribeTime, newData.DisableDelivery, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.OrderNo, newData.OriginOrderId, newData.UpstreamSource, newData.UpstreamOrderId, newData.DeliveryCode, newData.DeliveryOrderNo, newData.ShortNum, newData.AccountId, newData.SourceAppId, newData.InquiryId, newData.Status, newData.FromMobile, newData.FromAddress, newData.ToMobile, newData.ToAddress, newData.Note, newData.GoodsName, newData.GoodsType, newData.GoodsDetail, newData.TotalAmount, newData.PriceDetail, newData.Distance, newData.DriverName, newData.DriverMobile, newData.ShopId, newData.SubscribeType, newData.SubscribeTime, newData.SelectDelivery, newData.Id)
 	}, dispatchOrderIdKey, dispatchOrderOrderNoKey, dispatchOrderUpstreamOrderIdKey)
 	return err
 }

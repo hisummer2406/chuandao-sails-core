@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/svc"
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/types"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/svc"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

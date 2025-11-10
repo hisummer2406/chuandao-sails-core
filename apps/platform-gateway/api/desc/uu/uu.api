@@ -1,4 +1,4 @@
-syntax = "v1"
+syntax = "delivery"
 
 info(
     title: "UU 开放平台接口"

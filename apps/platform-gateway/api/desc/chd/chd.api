@@ -1,4 +1,4 @@
-syntax = "v1"
+syntax = "delivery"
 
 info(
     title: "船到接收溢出单接口，报价模式（quotationPrice）"

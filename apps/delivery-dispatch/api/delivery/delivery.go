@@ -7,9 +7,9 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"os"
 
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/config"
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/handler"
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/svc"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/config"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/handler"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
@@ -23,7 +23,7 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	//注册日志
+	// 注册日志
 	logx.MustSetup(c.Log)
 	slsWriter, err := sls.NewWriter(c.SLS)
 	if err != nil {
@@ -31,7 +31,7 @@ func main() {
 	} else {
 		defer slsWriter.Close()
 		logx.SetWriter(slsWriter)
-		//测试环境
+		// 测试环境
 		logx.AddWriter(logx.NewWriter(os.Stdout))
 	}
 

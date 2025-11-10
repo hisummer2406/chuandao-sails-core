@@ -1,4 +1,4 @@
-syntax = "v1"
+syntax = "delivery"
 
 info (
 	title:  "上游溢出单路由"

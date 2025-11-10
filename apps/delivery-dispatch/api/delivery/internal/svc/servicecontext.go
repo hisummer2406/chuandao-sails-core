@@ -1,8 +1,8 @@
 package svc
 
 import (
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/config"
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/middleware"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/config"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/middleware"
 	"chuandao-sails-core/apps/delivery-dispatch/model"
 	"chuandao-sails-core/apps/delivery-dispatch/pkg/engine/platform"
 	"chuandao-sails-core/apps/delivery-dispatch/pkg/engine/pricing"

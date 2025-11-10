@@ -122,8 +122,8 @@ type GetQuotaReq struct {
 	GoodsType       int64       `json:"goods_type"`        //物品类型
 	GoodsWeight     float64     `json:"goods_weight"`      //物品重量
 	SubscribeType   int64       `json:"subscribe_type"`    //预约类型：0实时 1预约取件 2预约送达
-	SubscribeTime   string       `json:"subscribe_time"`    //预约时间戳
-	DisableDelivery string      `json:"disable_delivery"`  //禁用运力 1,2,3
+	SubscribeTime   string      `json:"subscribe_time"`    //预约时间戳
+	SelectDelivery  string      `json:"select_delivery"`   //选择运力 1,2,3
 }
 
 type GetQuotaResp struct {

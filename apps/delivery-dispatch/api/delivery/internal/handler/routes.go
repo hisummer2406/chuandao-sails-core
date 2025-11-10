@@ -6,7 +6,7 @@ package handler
 import (
 	"net/http"
 
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/svc"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

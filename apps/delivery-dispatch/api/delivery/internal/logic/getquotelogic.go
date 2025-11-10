@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/svc"
-	"chuandao-sails-core/apps/delivery-dispatch/api/v1/internal/types"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/svc"
+	"chuandao-sails-core/apps/delivery-dispatch/api/delivery/internal/types"
 	"chuandao-sails-core/apps/delivery-dispatch/model"
 	"chuandao-sails-core/apps/delivery-dispatch/pkg/engine/pricing"
 	"chuandao-sails-core/common/snowflake"
@@ -46,7 +46,7 @@ func (l *GetQuoteLogic) GetQuote(req *types.GetQuotaReq) (resp *types.GetQuotaRe
 	}
 
 	// 3.过滤禁用平台
-	disablePlatforms := l.parseDisablePlatforms(req.DisableDelivery)
+	disablePlatforms := l.parseAblePlatforms(req.SelectDelivery)
 
 	// 4.并发询价
 	quoteReq := &pricing.QuoteRequest{
@@ -123,7 +123,7 @@ func (l *GetQuoteLogic) ensureOrder(req *types.GetQuotaReq) (string, error) {
 			GoodsDetail:     string(goodsDetail),
 			SubscribeType:   req.SubscribeType,
 			SubscribeTime:   req.SubscribeTime,
-			DisableDelivery: req.DisableDelivery,
+			SelectDelivery:  req.SelectDelivery,
 		}
 
 		// 4.2 插入订单主表
@@ -172,13 +172,13 @@ func (l *GetQuoteLogic) createInquiryLog(orderNo string, req *types.GetQuotaReq)
 	return inquiryLog, nil
 }
 
-// parseDisablePlatforms 解析禁用平台
-func (l *GetQuoteLogic) parseDisablePlatforms(disable string) []string {
-	if disable == "" {
+// parseDisablePlatforms 解析运力平台
+func (l *GetQuoteLogic) parseAblePlatforms(delivery string) []string {
+	if delivery == "" {
 		// 切片是引用类型需要初始化
 		return []string{}
 	}
-	return strings.Split(disable, ",")
+	return strings.Split(delivery, ",")
 }
 
 // saveInquireDetails 保存询价明细
