@@ -101,7 +101,7 @@ API入口:
 
 **目录结构**:
 ```yaml
-apps/platform-gateway/
+app/platform-gateway/
 ├── api/internal/logic/uu/      # UU平台处理逻辑
 ├── pkg/platform/
 │   ├── adapter/                # 适配器模式
@@ -163,7 +163,7 @@ platform_push_order_master
 
 **目录结构**:
 ```
-apps/delivery-dispatch/
+apps/
 ├── pkg/engine/
 │   ├── platform/              # 平台管理引擎
 │   │   ├── manager.go
@@ -337,7 +337,7 @@ chuandao-sails-core/
 ├── apps/                          # 微服务应用
 │   ├── platform-gateway/          # 平台网关 ✅ 70%
 │   ├── order-service/             # 订单服务 🚧 40%
-│   ├── delivery-dispatch/         # 配送调度 ⚠️ 框架搭建
+│   ├──          # 配送调度 ⚠️ 框架搭建
 │   └── finance-service/           # 财务服务 📋 目录完整
 │
 ├── common/                        # 公共组件 ✅
